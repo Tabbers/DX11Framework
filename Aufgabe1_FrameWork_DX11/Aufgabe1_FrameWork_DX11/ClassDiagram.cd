@@ -1,0 +1,91 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="ColorShader" Collapsed="true">
+    <Position X="4.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AIgAAAARABAAAAIAEAAAAQAAEAAgAAAAABACCAAAgAA=</HashCode>
+      <FileName>colorshader.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D3Dc" Collapsed="true">
+    <Position X="2.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAgAACEKAAAAgAkEEQAQEAAwIAABhABgCCAAAgBAA=</HashCode>
+      <FileName>d3dc.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D3DCamera" Collapsed="true">
+    <Position X="0.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAIAAAiCBAAAAAACAIgCAACAAAggAABQAAAQAAAA=</HashCode>
+      <FileName>d3dcamera.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="D3Dmodel" Collapsed="true">
+    <Position X="10.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>ACAQAAAAAAAAAAAQAQAEARABABAAAAEBABACAAAAAAA=</HashCode>
+      <FileName>d3dmodel.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="EngineCore" Collapsed="true">
+    <Position X="8.75" Y="0.5" Width="1.5" />
+    <NestedTypes>
+      <Typedef Name="EngineCore::Time" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>enginecore.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="EngineCore::ms" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>enginecore.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+      <Typedef Name="EngineCore::fsec" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>enginecore.h</NewMemberFileName>
+        </TypeIdentifier>
+      </Typedef>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AAEAAIAEAIAAAAAAAAAgASAAgABAAAAAEBACAAggAAM=</HashCode>
+      <FileName>enginecore.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="GraphicsCore" Collapsed="true">
+    <Position X="2.5" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAACAAEAAAAAAAAAABACAQAAAAAAAAAAABgiAAAAEAE=</HashCode>
+      <FileName>graphicscore.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Input" Collapsed="true">
+    <Position X="14.25" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>BAAAAAQBAAAAgAAAAAgAAAAAEAAAAAAAAAACAAAAAAA=</HashCode>
+      <FileName>input.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ModelCube" Collapsed="true">
+    <Position X="8.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAQAAAAAAAAAIAAAAAAAEAAAAQAAEAAAAQAAAAAAA=</HashCode>
+      <FileName>modelcube.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Path" Collapsed="true">
+    <Position X="6.5" Y="2.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAQAAIBAAACAAAAAAAAAAAAAEAAAAEAAAA=</HashCode>
+      <FileName>path.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PathPoint" Collapsed="true">
+    <Position X="6.5" Y="3.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAASAIAABAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>pathpoint.h</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

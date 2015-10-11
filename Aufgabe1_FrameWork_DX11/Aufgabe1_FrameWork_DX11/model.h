@@ -16,7 +16,7 @@ public:
 public:
 	Vertice* vertices;
 
-	int* indices;
+	unsigned long* indices;
 	int m_vertexcount;
 	int m_indexcount;
 };

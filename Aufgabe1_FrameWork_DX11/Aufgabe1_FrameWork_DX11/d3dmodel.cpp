@@ -7,6 +7,7 @@ D3Dmodel::D3Dmodel()
 {
 	vertexBuffer = 0;
 	indexBuffer = 0;
+	model = 0;
 }
 
 D3Dmodel::D3Dmodel(const D3Dmodel &other)
@@ -30,7 +31,6 @@ bool D3Dmodel::Init(ID3D11Device * device, XMVECTOR position, XMVECTOR rotation)
 	result = InitBuffers(device, position, rotation);
 	if (!result) return false;
 
-	
 	return true;
 }
 
@@ -51,6 +51,7 @@ bool D3Dmodel::InitBuffers(ID3D11Device * device, XMVECTOR position, XMVECTOR ro
 	this->m_rotation = rotation;
 	HRESULT result;
 	VertexType* vertices;
+	XMFLOAT3 positions;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
@@ -62,9 +63,9 @@ bool D3Dmodel::InitBuffers(ID3D11Device * device, XMVECTOR position, XMVECTOR ro
 	if (!vertices) return false;
 	for (int i = 0; i < vertexCount; i++)
 	{
-		vertices[i].position = model->vertices->m_position;	
-		vertices[i].color = model->vertices->m_color;
-		vertices[i].normal = model->vertices->m_normal;
+		vertices[i].position = (*model).vertices[i].m_position;
+		vertices[i].color = (*model).vertices[i].m_color;
+		vertices[i].normal = (*model).vertices[i].m_normal;
 	}
 
 	// Setup dec vor vert buffer with size of vertextype*count
@@ -94,7 +95,7 @@ bool D3Dmodel::InitBuffers(ID3D11Device * device, XMVECTOR position, XMVECTOR ro
 	indexBufferDesc.StructureByteStride = 0;
 
 	// pointer to index Data
-	indexData.pSysMem = model->indices;
+	indexData.pSysMem = (*model).indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -135,14 +136,14 @@ void D3Dmodel::RenderBuffers(ID3D11DeviceContext * devCon)
 	stride = sizeof(VertexType);
 	offset = 0;
 
-	//Activate vert and index buffer in the input assembler
-	// Set the vertex buffer to active
+	// Set the vertex buffer to active in the input assembler so it can be rendered.
 	devCon->IASetVertexBuffers(0, 1, &vertexBuffer, &stride, &offset);
-	// Set the index buffer ot active
+
+	// Set the index buffer to active in the input assembler so it can be rendered.
 	devCon->IASetIndexBuffer(indexBuffer, DXGI_FORMAT_R32_UINT, 0);
-	// Set it to render Triangles
+
+	// Set the type of primitive that should be rendered from this vertex buffer, in this case triangles.
 	devCon->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	return;
-
 }

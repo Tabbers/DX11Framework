@@ -46,7 +46,7 @@ bool Model::LoadModel(char * filename)
 
 		// Create the model using the vertex count that was read in.
 		vertices = new Vertice[m_vertexcount];
-		indices = new int[m_indexcount];
+		indices = new unsigned long[m_indexcount];
 		if (!vertices)
 		{
 			return false;

@@ -15,7 +15,6 @@ public:
 	~EngineCore();
 
 	bool Init();
-	void Shutdown();
 	void Run();
 
 	LRESULT CALLBACK MsgHandle(HWND, UINT, WPARAM, LPARAM);

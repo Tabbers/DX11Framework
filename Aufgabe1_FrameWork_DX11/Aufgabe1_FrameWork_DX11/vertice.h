@@ -13,6 +13,5 @@ public:
 	DirectX::XMFLOAT3 m_position;
 	DirectX::XMFLOAT4 m_color;
 	DirectX::XMFLOAT3 m_normal;
-
 };
 

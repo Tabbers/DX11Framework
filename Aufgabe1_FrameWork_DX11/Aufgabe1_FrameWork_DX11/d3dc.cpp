@@ -21,9 +21,49 @@ D3Dc::D3Dc(const D3Dc &other)
 
 D3Dc::~D3Dc()
 {
+	if (rasterState)
+	{
+		rasterState->Release();
+		rasterState = 0;
+	}
+	if (depthStencilView)
+	{
+		depthStencilView->Release();
+		depthStencilView = 0;
+	}
+	if (depthStencilState)
+	{
+		depthStencilState->Release();
+		depthStencilState = 0;
+	}
+	if (depthBuffer)
+	{
+		depthBuffer->Release();
+		depthBuffer = 0;
+	}
+	if (targetView)
+	{
+		targetView->Release();
+		targetView = 0;
+	}
+	if (devCon)
+	{
+		devCon->Release();
+		devCon = 0;
+	}
+	if (device)
+	{
+		device->Release();
+		device = 0;
+	}
+	if (swapChain)
+	{
+		swapChain->Release();
+		swapChain = 0;
+	}
 }
 
-bool D3Dc::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen, float screenDepth, float screenNear)
+bool D3Dc::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool fullscreen)
 {
 	// Win Result code
 	HRESULT result;
@@ -42,9 +82,6 @@ bool D3Dc::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool f
 	D3D11_DEPTH_STENCIL_DESC depthStencilDesc;
 	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
 	D3D11_RASTERIZER_DESC rasterDesc;
-	D3D11_VIEWPORT viewport;
-	float fieldOfView, screenAspect;
-
 
 	// Store the vsync setting.
 	vsync_on = vsync;
@@ -239,77 +276,9 @@ bool D3Dc::Init(int screenWidth, int screenHeight, bool vsync, HWND hwnd, bool f
 	if (FAILED(result)) return false;
 
 	devCon->RSSetState(rasterState);
-
-
-	// Setup the viewport
-	viewport.Width = (float)screenWidth;
-	viewport.Height = (float)screenHeight;
-	viewport.MinDepth = 0.0f;
-	viewport.MaxDepth = 1.0f;
-	viewport.TopLeftX = 0.0f;
-	viewport.TopLeftY = 0.0f;
-
-	devCon->RSSetViewports(1, &viewport);
-
-	// Set up fov to 90°
-	fieldOfView = 3.141592654f / 4.0f;
-	//get Apsect ratio
-	screenAspect = (float)screenWidth / (float)screenHeight;
-
-	//Set the projection matrix
-	projectionMatrix = XMMatrixPerspectiveFovLH(fieldOfView,screenAspect,screenNear,screenDepth);
-
 	//Initialize the World Matrix
 	worldMatrix = XMMatrixIdentity();
-	//OrthoMatrix
-	orthoMatrix = XMMatrixOrthographicLH((float)screenWidth,(float) screenHeight, screenNear,screenDepth);
-	
 	return true;
-}
-
-void D3Dc::Shutdown()
-{
-	if (rasterState)
-	{
-		rasterState->Release();
-		rasterState = 0;
-	}
-	if (depthStencilView)
-	{
-		depthStencilView->Release();
-		depthStencilView = 0;
-	}
-	if (depthStencilState)
-	{
-		depthStencilState->Release();
-		depthStencilState = 0;
-	}
-	if (depthBuffer)
-	{
-		depthBuffer->Release();
-		depthBuffer = 0;
-	}
-	if (targetView)
-	{
-		targetView->Release();
-		targetView = 0;
-	}
-	if (devCon)
-	{
-		devCon->Release();
-		devCon = 0;
-	}
-	if (device)
-	{
-		device->Release();
-		device = 0;
-	}
-	if (swapChain)
-	{
-		swapChain->Release();
-		swapChain = 0;
-	}
-	return;
 }
 
 void D3Dc::BeginScene(float red, float green, float blue, float alpha)
@@ -339,21 +308,9 @@ ID3D11DeviceContext* D3Dc::GetDeviceContext()
 	return devCon;
 }
 
-void D3Dc::GetProjectionMatrix(XMMATRIX& projectionMatrixExt)
-{
-	projectionMatrixExt = projectionMatrix;
-	return;
-}
-
 void D3Dc::GetWorldMatrix(XMMATRIX& worldMatrixExt)
 {
 	worldMatrixExt = worldMatrix;
-	return;
-}
-
-void D3Dc::GetOrthomatrix(XMMATRIX& orthoMatrixExt)
-{
-	orthoMatrixExt = orthoMatrix;
 	return;
 }
 
@@ -362,4 +319,10 @@ void D3Dc::GetVideoCard(char * cardName, int& memory)
 	strcpy_s(cardName, 129, vCardDesc);
 	memory = videoCardMemory;
 	return;
+}
+
+void D3Dc::getScreenDimensions(int & screenWidth, int &screenHeight)
+{
+	screenWidth  = this->screenWidth;
+	screenHeight = this->screenHeight;
 }

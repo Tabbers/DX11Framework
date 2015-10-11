@@ -1,10 +1,13 @@
 #ifndef _D3DCAMERA_H_
 #define _D3DCAMERA_H_
 
-#include <DirectXMath.h>
+#include "gameobject.h"
 using namespace DirectX;
 
-class D3DCamera
+const float SCREEN_DEPTH = 1000.0f;
+const float SCREEN_NEAR = 0.1F;
+
+class D3DCamera: public GameObject
 {
 
 public:
@@ -12,22 +15,28 @@ public:
 	D3DCamera(const D3DCamera&);
 	~D3DCamera();
 
-	void SetPosition(float, float, float);
-	void SetRotation(float, float, float);
-
-	XMVECTOR GetPosition();
-	XMVECTOR GetRotation();
-
+	void Init(int, int, ID3D11DeviceContext*);
 	void Render(XMVECTOR, XMVECTOR,bool);
 	void GetViewMatrix(XMMATRIX&);
+	void GetOrthomatrix(XMMATRIX&);
+	void GetProjectionMatrix(XMMATRIX&);
 public:
 	float speedMovement = 10;
 	float speedRotation = 1;
 
 private:
-	XMVECTOR position;
-	XMVECTOR rotation;
-	XMMATRIX viewMatrix;
+	XMVECTOR m_position;
+	XMVECTOR m_rotation;
+	XMMATRIX m_viewMatrix;
+	
+	//Matrix housing projection positions
+	XMMATRIX m_projectionMatrix;
+	//Matrix for orhtigraphic projection
+	XMMATRIX m_orthoMatrix;
+
+	D3D11_VIEWPORT m_viewport;
+	float m_fieldOfView;
+	float m_screenAspect;
 };
 
 #endif

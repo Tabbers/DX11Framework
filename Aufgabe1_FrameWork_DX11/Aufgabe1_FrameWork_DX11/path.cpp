@@ -38,7 +38,6 @@ DirectX::XMVECTOR Path::GetPositionOfPoint(int index)
 
 DirectX::XMVECTOR Path::GetRotationOfPoint(int index)
 {
-	DirectX::XMVECTOR postionTemp;
 	PathPoint pointTemp;
 
 	pointTemp = path[index];

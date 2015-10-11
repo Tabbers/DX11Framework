@@ -17,6 +17,8 @@ ColorShader::ColorShader(const ColorShader& other)
 
 ColorShader::~ColorShader()
 {
+	// Shutdown the vertex and pixel shaders as well as the related objects.
+	ShutdownShader();
 }
 
 
@@ -30,15 +32,6 @@ bool ColorShader::Init(ID3D11Device* device, HWND hwnd)
 	if(!result) return false;
 
 	return true;
-}
-
-
-void ColorShader::Shutdown()
-{
-	// Shutdown the vertex and pixel shaders as well as the related objects.
-	ShutdownShader();
-
-	return;
 }
 
 
@@ -122,6 +115,14 @@ bool ColorShader::InitShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename,
 	polygonLayout[1].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
 	polygonLayout[1].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
 	polygonLayout[1].InstanceDataStepRate = 0;
+
+	polygonLayout[2].SemanticName = "NORMAL";
+	polygonLayout[2].SemanticIndex = 0;
+	polygonLayout[2].Format = DXGI_FORMAT_R32G32B32_FLOAT;
+	polygonLayout[2].InputSlot = 0;
+	polygonLayout[2].AlignedByteOffset = D3D11_APPEND_ALIGNED_ELEMENT;
+	polygonLayout[2].InputSlotClass = D3D11_INPUT_PER_VERTEX_DATA;
+	polygonLayout[2].InstanceDataStepRate = 0;
 
 	// Get a count of the elements in the layout.
     numElements = sizeof(polygonLayout) / sizeof(polygonLayout[0]);

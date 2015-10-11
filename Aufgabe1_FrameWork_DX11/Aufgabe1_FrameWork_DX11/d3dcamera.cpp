@@ -4,8 +4,8 @@
 
 D3DCamera::D3DCamera()
 {
-	position = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
-	rotation = XMQuaternionIdentity();
+	m_position = XMVectorSet(0.0f, 0.0f, 0.0f, 1.0f);
+	m_rotation = XMQuaternionIdentity();
 }
 
 D3DCamera::D3DCamera(const D3DCamera &other)
@@ -16,26 +16,29 @@ D3DCamera::~D3DCamera()
 {
 }
 
-void D3DCamera::SetPosition(float x, float y, float z)
+void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* devCon)
 {
-	position = XMVectorSet(x, y, z, 0.0f);
-	return;
-}
+	// Setup the viewport
+	m_viewport.Width = (float)screenWidth;
+	m_viewport.Height = (float)screenHeight;
+	m_viewport.MinDepth = 0.0f;
+	m_viewport.MaxDepth = 1.0f;
+	m_viewport.TopLeftX = 0.0f;
+	m_viewport.TopLeftY = 0.0f;
 
-void D3DCamera::SetRotation(float x, float y, float z)
-{
-	rotation = XMVectorSet(x, y, z, rotation.m128_f32[3]);
-	return;
-}
+	devCon->RSSetViewports(1, &m_viewport);
 
-XMVECTOR D3DCamera::GetPosition()
-{
-	return position;
-}
+	// Set up fov to 90°
+	m_fieldOfView = 3.141592654f / 4.0f;
+	//get Apsect ratio
+	m_screenAspect = (float)screenWidth / (float)screenHeight;
 
-XMVECTOR D3DCamera::GetRotation()
-{
-	return rotation;
+	//Set the projection matrix
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fieldOfView, m_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
+
+	//OrthoMatrix
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+
 }
 
 void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
@@ -51,11 +54,11 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 	{
 		XMVECTOR quaternion = XMQuaternionRotationRollPitchYawFromVector(rotate);
 		quaternion = XMQuaternionNormalize(quaternion);
-		rotation = XMQuaternionMultiply(quaternion, rotation);
+		m_rotation = XMQuaternionMultiply(quaternion, m_rotation);
 	}
-	else rotation = rotate;
+	else m_rotation = rotate;
 
-	rotationMatrix = XMMatrixRotationQuaternion(rotation);
+	rotationMatrix = XMMatrixRotationQuaternion(m_rotation);
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
 	lookAtVector = XMVector3TransformCoord(lookAtVector, rotationMatrix);
@@ -65,22 +68,35 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 	{
 		translate = XMVector3TransformCoord(translate, rotationMatrix);
 		translate = XMVectorSetW(translate, 0);
-		position += translate;
+		m_position += translate;
 	}
-	else position = translate;
+	else m_position = translate;
 
 	// Translate the rotated camera position to the location of the viewer.
-	lookAtVector = XMVectorAdd(position, lookAtVector);
+	lookAtVector = XMVectorAdd(m_position, lookAtVector);
 
 	
 	// Finally create the view matrix from the three updated vectors.
-	viewMatrix = XMMatrixLookAtLH(position, lookAtVector, upVector);
+	m_viewMatrix = XMMatrixLookAtLH(m_position, lookAtVector, upVector);
 
 	return;
 }
 
-void D3DCamera::GetViewMatrix(XMMATRIX & viewMatrixEXT)
+void D3DCamera::GetViewMatrix(XMMATRIX & viewMatrix)
 {
-	viewMatrixEXT = viewMatrix;
+	viewMatrix = this->m_viewMatrix;
 	return;
 }
+
+void D3DCamera::GetOrthomatrix(XMMATRIX & orthoMatrix)
+{
+	orthoMatrix = this->m_orthoMatrix;
+	return;
+}
+
+void D3DCamera::GetProjectionMatrix(XMMATRIX & projectionMatrix)
+{
+	projectionMatrix = this->m_projectionMatrix;
+	return;
+}
+

@@ -1,5 +1,6 @@
 #include "d3dmodel.h"
-#include "modelcube.h"
+#include "model.h"
+#include "vertice.h"
 
 
 D3Dmodel::D3Dmodel()
@@ -15,22 +16,22 @@ D3Dmodel::D3Dmodel(const D3Dmodel &other)
 
 D3Dmodel::~D3Dmodel()
 {
+	ShutdownBuffers();
+	model->ReleaseModel();
 }
 
-bool D3Dmodel::Init(ID3D11Device * device)
+bool D3Dmodel::Init(ID3D11Device * device, XMVECTOR position, XMVECTOR rotation)
 {
 	bool result;
 
-	result = InitBuffers(device);
+	model = new Model();
+	model->LoadModel("../Aufgabe1_FrameWork_DX11/Data/cube.txt");
+
+	result = InitBuffers(device, position, rotation);
 	if (!result) return false;
 
+	
 	return true;
-}
-
-void D3Dmodel::Shutdown()
-{
-	ShutdownBuffers();
-	return;
 }
 
 void D3Dmodel::Render(ID3D11DeviceContext * devCon)
@@ -44,36 +45,27 @@ int D3Dmodel::GetIndexCount()
 	return indexCount;
 }
 
-bool D3Dmodel::InitBuffers(ID3D11Device * device)
+bool D3Dmodel::InitBuffers(ID3D11Device * device, XMVECTOR position, XMVECTOR rotation)
 {
+	this->m_position = position;
+	this->m_rotation = rotation;
 	HRESULT result;
 	VertexType* vertices;
 	D3D11_BUFFER_DESC vertexBufferDesc, indexBufferDesc;
 	D3D11_SUBRESOURCE_DATA vertexData, indexData;
 
-	ModelCube* cube = new ModelCube;
-
-
-	vertexCount = cube->vertexcount;
-	indexCount = cube->indexcount;
+	vertexCount = model->m_vertexcount;
+	indexCount = model->m_indexcount;
 
 	// Array for vertices
 	vertices = new VertexType[vertexCount];
 	if (!vertices) return false;
 	for (int i = 0; i < vertexCount; i++)
 	{
-		vertices[i].position = cube->vertices[i];	
+		vertices[i].position = model->vertices->m_position;	
+		vertices[i].color = model->vertices->m_color;
+		vertices[i].normal = model->vertices->m_normal;
 	}
-
-	vertices[0].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	vertices[1].color = XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f);
-	vertices[2].color = XMFLOAT4(1.0f, 1.0f, 0.0f, 1.0f);
-	vertices[3].color = XMFLOAT4(0.0f, 1.0f, 1.0f, 1.0f);
-	vertices[4].color = XMFLOAT4(1.0f, 0.0f, 1.0f, 1.0f);
-	vertices[5].color = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);
-	vertices[6].color = XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f);
-	vertices[7].color = XMFLOAT4(1.0f, 0.5f, 0.5f, 1.0f);
-
 
 	// Setup dec vor vert buffer with size of vertextype*count
 	vertexBufferDesc.Usage = D3D11_USAGE_DEFAULT;
@@ -102,7 +94,7 @@ bool D3Dmodel::InitBuffers(ID3D11Device * device)
 	indexBufferDesc.StructureByteStride = 0;
 
 	// pointer to index Data
-	indexData.pSysMem = cube->indices;
+	indexData.pSysMem = model->indices;
 	indexData.SysMemPitch = 0;
 	indexData.SysMemSlicePitch = 0;
 
@@ -130,7 +122,6 @@ void D3Dmodel::ShutdownBuffers()
 		vertexBuffer->Release();
 		vertexBuffer = 0;
 	}
-
 	return;
 }
 

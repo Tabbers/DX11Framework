@@ -13,6 +13,21 @@ EngineCore::EngineCore(const EngineCore &other)
 
 EngineCore::~EngineCore()
 {
+	// Release the graphics object.
+	if (graphObj)
+	{
+		delete graphObj;
+		graphObj = 0;
+	}
+
+	// Release the input object.
+	if (inputObj)
+	{
+		delete inputObj;
+		inputObj = 0;
+	}
+
+	ShutdownWindows();
 }
 
 bool EngineCore::Init()
@@ -42,27 +57,6 @@ bool EngineCore::Init()
 	if (!result) return false;
 
 	return true;
-}
-
-void EngineCore::Shutdown()
-{
-	// Release the graphics object.
-	if (graphObj)
-	{
-		graphObj->Shutdown();
-		delete graphObj;
-		graphObj = 0;
-	}
-
-	// Release the input object.
-	if (inputObj)
-	{
-		delete inputObj;
-		inputObj = 0;
-	}
-
-	ShutdownWindows();
-	return;
 }
 
 void EngineCore::Run()

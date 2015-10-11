@@ -8,12 +8,12 @@
 #include "colorshader.h"
 #include "path.h"
 #include "input.h"
+#include "gameobject.h"
 #include <chrono>
 #include <string>
+#include <vector>
 
 const bool VSYNC = true;
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1F;
 const float DEG_TO_RAD = 0.0174532925F;
 
 class GraphicsCore
@@ -24,28 +24,29 @@ public:
 	~GraphicsCore();
 
 	bool Init(int, int, HWND);
-	void Shutdown();
 	bool Frame(float,Input*,bool);
 private:
 	bool Render(float,Input*,bool);       
 
 private:
-	D3Dc* Direct3DWrapper;
-	D3DCamera* Camera;
-	D3Dmodel* Model;
-	D3Dmodel* Model1;
-	D3Dmodel* Model2;
-	ColorShader* colShader;
-	Path* path;
+	D3Dc* m_Direct3DWrapper;
+	D3DCamera* m_Camera;
+	D3Dmodel* m_Model;
+	D3Dmodel* m_Model1;
+	D3Dmodel* m_Model2;
+	ColorShader* m_colShader;
+	Path* m_path;
 
 	// reference to parent window
-	HWND hwndin;
+	HWND m_hwndin;
 
-	int currentPoint = 0;
-	float partialTime = 0;
-	float sublength = 0;
-	float elapsedTime = 0;
-	bool playback = false;
+	int   m_currentPoint = 0;
+	float m_partialTime = 0;
+	float m_sublength = 0;
+	float m_elapsedTime = 0;
+	bool  m_playback = false;
+
+	vector<GameObject*> RenderableObjects;
 };
 
 #endif // !_GRAPHICSCORE_H_

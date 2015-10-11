@@ -21,7 +21,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PSTR pScmdline,
 	}
 
 	// Shutdown and release the system object.
-	Core->Shutdown();
 	delete Core;
 	Core = 0;
 

@@ -17,7 +17,7 @@ public:
 	D3Dc(const D3Dc&);
 	~D3Dc();
 
-	bool Init(int, int, bool, HWND, bool, float, float);
+	bool Init(int,int,bool, HWND, bool);
 	void Shutdown();
 	void BeginScene(float ,float, float, float);
 	void EndScene();
@@ -25,11 +25,10 @@ public:
 	ID3D11Device* GetDevice();
 	ID3D11DeviceContext* GetDeviceContext();
 
-	void GetProjectionMatrix(XMMATRIX&);
 	void GetWorldMatrix(XMMATRIX&);
-	void GetOrthomatrix(XMMATRIX&);
 
 	void GetVideoCard(char*,int&);
+	void getScreenDimensions(int&, int&);
 private:
 	bool vsync_on;
 	int videoCardMemory;
@@ -42,13 +41,9 @@ private:
 	ID3D11DepthStencilState* depthStencilState;
 	ID3D11DepthStencilView* depthStencilView;
 	ID3D11RasterizerState* rasterState;
-
-	//Matrix housing projection positions
-	XMMATRIX projectionMatrix;
 	//Matrix housing world positions
 	XMMATRIX worldMatrix;
-	//Matrix for orhtigraphic projection
-	XMMATRIX orthoMatrix;
+	int screenWidth, screenHeight;
 };
 #endif
 

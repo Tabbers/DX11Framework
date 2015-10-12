@@ -24,6 +24,7 @@ public:
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();
+	XMMATRIX adjustWorldmatrix(XMMATRIX);
 
 private:
 	bool InitBuffers(ID3D11Device*,XMVECTOR,XMVECTOR);
@@ -35,6 +36,8 @@ private:
 	int vertexCount;
 	int indexCount;
 	Model* model;
+
+	XMMATRIX m_worldmatrix;
 };
 
 #endif // !_D3DMODEL_H_

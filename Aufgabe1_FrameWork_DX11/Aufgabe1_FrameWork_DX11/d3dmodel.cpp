@@ -45,6 +45,13 @@ int D3Dmodel::GetIndexCount()
 	return indexCount;
 }
 
+XMMATRIX D3Dmodel::adjustWorldmatrix(XMMATRIX worldMatrix)
+{
+	m_worldmatrix = XMMatrixTranslationFromVector(m_position);
+	worldMatrix = XMMatrixMultiply(worldMatrix,m_worldmatrix);
+	return worldMatrix;
+}
+
 bool D3Dmodel::InitBuffers(ID3D11Device * device, XMVECTOR position, XMVECTOR rotation)
 {
 	this->m_position = position;

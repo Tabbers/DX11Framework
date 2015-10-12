@@ -218,13 +218,11 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 
 
 	m_Model->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	worldMatrix = XMMatrixTranslationFromVector(translate);
+	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model->GetIndexCount(), m_Model->adjustWorldmatrix(worldMatrix), viewMatrix, projectionMatrix);
 	m_Model1->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model1->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
-	worldMatrix = XMMatrixTranslationFromVector(translate);
+	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model1->GetIndexCount(), m_Model1->adjustWorldmatrix(worldMatrix), viewMatrix, projectionMatrix);
 	m_Model2->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix);
+	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model2->GetIndexCount(), m_Model2->adjustWorldmatrix(worldMatrix), viewMatrix, projectionMatrix);
 	if (!result) return false;
 
 	m_Direct3DWrapper->EndScene();

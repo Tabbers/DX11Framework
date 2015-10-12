@@ -3,6 +3,14 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 
+cbuffer LightBuffer
+{
+    float4 ambientColor;
+    float4 diffuseColor;
+    float3 lightDirection;
+    float padding;
+};
+
 //////////////
 // TYPEDEFS //
 //////////////
@@ -10,6 +18,7 @@ struct PixelInputType
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
+	float3 normal: NORMAL
 };
 
 
@@ -18,5 +27,34 @@ struct PixelInputType
 ////////////////////////////////////////////////////////////////////////////////
 float4 ColPixelShader(PixelInputType input) : SV_TARGET
 {
+	float4 originalColor;
+    float3 lightDir;
+    float lightIntensity;
+    float4 color;
+
+	// Retrieve color from the Cube Verts
+	originalColor = input.color;
+	
+	// Set the Output to the ambient light color 
+	color = ambientColor;
+	
+	//Light direction inversion for calulations
+    lightDir = -lightDirection;
+
+    // Calculate the amount of light on this pixel.
+    lightIntensity = saturate(dot(input.normal, lightDir));
+
+	//Check if Normals to light dotproduct is greater than 0, if it is negative problems will occur
+	if(lightIntensity > 0.0f)
+    {
+        // Determine the final diffuse color based on the diffuse color and the amount of light intensity.
+        color += (diffuseColor * lightIntensity);
+    }
+	 // Saturate the final light color.
+    color = saturate(color);
+
+    // Multiply the texture pixel and the final diffuse color to get the final pixel color result.
+    color = color * originalColor;
+
     return input.color;
 }

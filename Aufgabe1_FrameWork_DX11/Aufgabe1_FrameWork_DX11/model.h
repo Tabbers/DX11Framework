@@ -12,6 +12,8 @@ public:
 
 	bool LoadModel(char*);
 	void ReleaseModel();
+	//setter
+	void setObjectColor(DirectX::XMFLOAT4);
 
 public:
 	Vertice* vertices;

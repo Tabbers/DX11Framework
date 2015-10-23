@@ -12,8 +12,16 @@ public:
 	void SetPosition(float, float, float);
 	void SetRotation(float, float, float);
 
+	//Getter
 	XMVECTOR GetPosition();
 	XMVECTOR GetRotation();
+	//setter
+	inline void SetTransform(XMVECTOR position, XMVECTOR rotation) {
+		m_position = position;
+		m_rotation = rotation;
+	};
+	inline void SetPosition(XMVECTOR position) { m_position = position; };
+	inline void SetRotation(XMVECTOR rotation) { m_rotation = rotation; };
 
 	virtual bool Init(ID3D11Device*,XMVECTOR, XMVECTOR);
 	virtual void Render(ID3D11DeviceContext*);

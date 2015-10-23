@@ -7,7 +7,7 @@ cbuffer LightBuffer
 {
     float4 ambientColor;
     float4 diffuseColor;
-    float3 lightDirection;
+    float3 lightPosition;
     float padding;
 };
 
@@ -18,7 +18,7 @@ struct PixelInputType
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
-	float3 normal: NORMAL
+	float4 normal: NORMAL;
 };
 
 
@@ -39,7 +39,7 @@ float4 ColPixelShader(PixelInputType input) : SV_TARGET
 	color = ambientColor;
 	
 	//Light direction inversion for calulations
-    lightDir = -lightDirection;
+    lightDir = -lightPosition;
 
     // Calculate the amount of light on this pixel.
     lightIntensity = saturate(dot(input.normal, lightDir));

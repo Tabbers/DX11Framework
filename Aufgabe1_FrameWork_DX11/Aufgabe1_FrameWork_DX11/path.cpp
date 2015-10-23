@@ -2,14 +2,14 @@
 
 
 
-Path::Path()
-{
-}
+//Path::Path()
+//{
+//}
 
 
-Path::~Path()
-{
-}
+//Path::~Path()
+//{
+//}
 
 void Path::AddPoint(DirectX::XMVECTOR position, DirectX::XMVECTOR rotation)
 {

@@ -11,6 +11,6 @@ public:
 
 	static DirectX::XMVECTOR KochanekBartels(float,float,float,float, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR);
 	static DirectX::XMVECTOR Squad(float, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR);
+	static inline float DegreeToRadians(float in) { return (in*3.1415926535898 / 180); };
 };
 #endif
-

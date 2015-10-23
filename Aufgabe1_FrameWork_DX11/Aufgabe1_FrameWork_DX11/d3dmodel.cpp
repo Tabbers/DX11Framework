@@ -1,6 +1,7 @@
 #include "d3dmodel.h"
 #include "model.h"
 #include "vertice.h"
+#include <string>
 
 
 D3Dmodel::D3Dmodel()
@@ -21,13 +22,13 @@ D3Dmodel::~D3Dmodel()
 	model->ReleaseModel();
 }
 
-bool D3Dmodel::Init(ID3D11Device * device, XMVECTOR position, XMVECTOR rotation)
+bool D3Dmodel::Init(char* location, ID3D11Device * device, XMVECTOR position, XMVECTOR rotation, XMFLOAT4 color)
 {
 	bool result;
-
 	model = new Model();
-	model->LoadModel("../Aufgabe1_FrameWork_DX11/Data/cube.txt");
-
+	if (location == "") model->LoadModel("Data/cube.txt");
+	else model->LoadModel(location);
+	model->setObjectColor(color);
 	result = InitBuffers(device, position, rotation);
 	if (!result) return false;
 

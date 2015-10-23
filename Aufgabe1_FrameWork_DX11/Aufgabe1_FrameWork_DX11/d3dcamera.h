@@ -4,31 +4,28 @@
 #include "gameobject.h"
 using namespace DirectX;
 
-const float SCREEN_DEPTH = 1000.0f;
-const float SCREEN_NEAR = 0.1F;
-
 class D3DCamera: public GameObject
 {
 
 public:
 	D3DCamera();
-	D3DCamera(const D3DCamera&);
 	~D3DCamera();
 
-	void Init(int, int, ID3D11DeviceContext*);
+	void Init(int, int, ID3D11DeviceContext*, XMVECTOR, XMVECTOR);
 	void Render(XMVECTOR, XMVECTOR,bool);
-	void GetViewMatrix(XMMATRIX&);
-	void GetOrthomatrix(XMMATRIX&);
-	void GetProjectionMatrix(XMMATRIX&);
+	//getter
+	inline void GetViewMatrix(XMMATRIX& viewMatrix) { viewMatrix = this->m_viewMatrix; };
+	inline void GetOrthomatrix(XMMATRIX& orthoMatrix) { orthoMatrix = this->m_orthoMatrix; };
+	inline void GetProjectionMatrix(XMMATRIX& projectionMatrix) { projectionMatrix = this->m_projectionMatrix; };
 public:
 	float speedMovement = 10;
 	float speedRotation = 1;
 
-private:
-	XMVECTOR m_position;
-	XMVECTOR m_rotation;
+	const float SCREEN_DEPTH = 1000.0f;
+	const float SCREEN_NEAR = 0.1F;
+private:	
+	//Matrix housing View Postion
 	XMMATRIX m_viewMatrix;
-	
 	//Matrix housing projection positions
 	XMMATRIX m_projectionMatrix;
 	//Matrix for orhtigraphic projection

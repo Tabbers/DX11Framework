@@ -88,4 +88,12 @@ void Model::ReleaseModel()
 	return;
 }
 
+void Model::setObjectColor(DirectX::XMFLOAT4 color)
+{
+	for (int i = 0; i < m_vertexcount; i++)
+	{
+		vertices[i].m_color = color;
+	}
+}
+
 

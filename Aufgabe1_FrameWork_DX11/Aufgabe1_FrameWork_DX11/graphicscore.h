@@ -9,6 +9,7 @@
 #include "path.h"
 #include "input.h"
 #include "gameobject.h"
+#include "light.h"
 #include <chrono>
 #include <string>
 #include <vector>
@@ -20,7 +21,6 @@ class GraphicsCore
 {
 public:
 	GraphicsCore();
-	GraphicsCore(const GraphicsCore&);
 	~GraphicsCore();
 
 	bool Init(int, int, HWND);
@@ -34,6 +34,9 @@ private:
 	D3Dmodel* m_Model;
 	D3Dmodel* m_Model1;
 	D3Dmodel* m_Model2;
+	D3Dmodel* m_Model3;
+	D3Dmodel* m_Model4;
+	Light*	m_Light;
 	ColorShader* m_colShader;
 	Path* m_path;
 

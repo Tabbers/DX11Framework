@@ -1,24 +1,29 @@
 #include "colorshader.h"
 
 
-ColorShader::ColorShader()
-{
-	vertexShader = 0;
-	pixelShader = 0;
-	layout = 0;
-	matrixBuffer = 0;
-}
-
-
-ColorShader::ColorShader(const ColorShader& other)
+ColorShader::ColorShader():
+	vertexShader(nullptr), pixelShader(nullptr),layout(nullptr),matrixBuffer(nullptr)
 {
 }
-
 
 ColorShader::~ColorShader()
 {
-	// Shutdown the vertex and pixel shaders as well as the related objects.
-	ShutdownShader();
+	if (matrixBuffer)
+	{
+		matrixBuffer->Release();
+	}
+	if (layout)
+	{
+		layout->Release();
+	}
+	if (pixelShader)
+	{
+		pixelShader->Release();
+	}
+	if (vertexShader)
+	{
+		vertexShader->Release();
+	}
 }
 
 
@@ -36,14 +41,13 @@ bool ColorShader::Init(ID3D11Device* device, HWND hwnd)
 
 
 bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-							  XMMATRIX projectionMatrix, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor, 
-							  XMFLOAT4 diffuseColor)
+							  XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMFLOAT3 lightposition,
+							  XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
 	bool result;
 
-
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,lightDirection,ambientColor,diffuseColor);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,lightViewMatrix,lightProjectionMatrix, lightposition,ambientColor,diffuseColor);
 	if(!result)	return false;
 
 	// Now render the prepared buffers with the shader.
@@ -65,6 +69,7 @@ bool ColorShader::InitShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename,
 
 	D3D11_BUFFER_DESC matrixBufferDesc;
 	D3D11_BUFFER_DESC lightBufferDesc;
+	D3D11_BUFFER_DESC lightBufferDesc2;
 
 
 	// Initialize the pointers this function will use to null.
@@ -187,43 +192,21 @@ bool ColorShader::InitShader(ID3D11Device* device, HWND hwnd, WCHAR* vsFilename,
 	result = device->CreateBuffer(&lightBufferDesc, NULL, &lightBuffer);
 	if (FAILED(result)) return false;
 
+	// Setup the description of the light dynamic constant buffer that is in the pixel shader.
+	// Note that ByteWidth always needs to be a multiple of 16 if using D3D11_BIND_CONSTANT_BUFFER or CreateBuffer will fail.
+	lightBufferDesc2.Usage = D3D11_USAGE_DYNAMIC;
+	lightBufferDesc2.ByteWidth = sizeof(LightBufferType2);
+	lightBufferDesc2.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	lightBufferDesc2.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+	lightBufferDesc2.MiscFlags = 0;
+	lightBufferDesc2.StructureByteStride = 0;
+
+	// Create the constant buffer pointer so we can access the vertex shader constant buffer from within this class.
+	result = device->CreateBuffer(&lightBufferDesc2, NULL, &lightBuffer2);
+	if (FAILED(result)) return false;
+
 	return true;
 }
-
-
-void ColorShader::ShutdownShader()
-{
-	// Release the matrix constant buffer.
-	if(matrixBuffer)
-	{
-		matrixBuffer->Release();
-		matrixBuffer = 0;
-	}
-
-	// Release the layout.
-	if(layout)
-	{
-		layout->Release();
-		layout = 0;
-	}
-
-	// Release the pixel shader.
-	if(pixelShader)
-	{
-		pixelShader->Release();
-		pixelShader = 0;
-	}
-
-	// Release the vertex shader.
-	if(vertexShader)
-	{
-		vertexShader->Release();
-		vertexShader = 0;
-	}
-
-	return;
-}
-
 
 void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, WCHAR* shaderFilename)
 {
@@ -262,13 +245,14 @@ void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 
 
 bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-										   XMMATRIX projectionMatrix, XMFLOAT3 lightDirection, XMFLOAT4 ambientColor,
-										   XMFLOAT4 diffuseColor)
+	XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMFLOAT3 lightPosition,
+	XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
 	MatrixBufferType* dataPtr;
 	LightBufferType* dataPtr2;
+	LightBufferType2* dataPtr3;
 	unsigned int bufferNumber;
 
 
@@ -276,6 +260,9 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worl
 	worldMatrix = XMMatrixTranspose(worldMatrix);
 	viewMatrix = XMMatrixTranspose(viewMatrix);
 	projectionMatrix = XMMatrixTranspose(projectionMatrix);
+
+	lightViewMatrix = XMMatrixTranspose(lightViewMatrix);
+	lightProjectionMatrix = XMMatrixTranspose(lightProjectionMatrix);
 
 	// Lock the constant buffer so it can be written to.
 	result = devCon->Map(matrixBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
@@ -288,6 +275,9 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worl
 	dataPtr->world = worldMatrix;
 	dataPtr->view = viewMatrix;
 	dataPtr->projection = projectionMatrix;
+
+	dataPtr->lightView = lightViewMatrix;
+	dataPtr->lightProjection = lightProjectionMatrix;
 
 	// Unlock the constant buffer.
 	devCon->Unmap(matrixBuffer, 0);
@@ -302,17 +292,32 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worl
 	result = devCon->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) return false;
 
+	// Get a pointer to the data in the constant buffer.
+	dataPtr2 = (LightBufferType*)mappedResource.pData;
+
 	dataPtr2->ambientColor = ambientColor;
 	dataPtr2->diffuseColor = diffuseColor;
-	dataPtr2->lightDirection = lightDirection;
-	dataPtr2->padding = 0.0f;
-
 	// unlock light buffer
 	devCon->Unmap(lightBuffer,0);
 	//set the position of the light buffer in the pixelshader
 	bufferNumber = 0;
 	devCon->PSSetConstantBuffers(bufferNumber, 1, &lightBuffer);
+	
+	// Get a pointer to the data in the constant buffer.
+	dataPtr3 = (LightBufferType2*)mappedResource.pData;
 
+	// Copy the lighting variables into the constant buffer.
+	dataPtr3->lightPosition = lightPosition;
+	dataPtr3->padding = 0.0f;
+
+	// Unlock the constant buffer.
+	devCon->Unmap(lightBuffer2, 0);
+
+	// Set the position of the light constant buffer in the vertex shader.
+	bufferNumber = 1;
+
+	// Finally set the light constant buffer in the pixel shader with the updated values.
+	devCon->VSSetConstantBuffers(bufferNumber, 1, &lightBuffer2);
 	return true;
 }
 

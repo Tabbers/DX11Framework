@@ -1,32 +1,15 @@
 #include "enginecore.h"
 
 
-EngineCore::EngineCore()
-{
-	inputObj = 0;
-	graphObj = 0;
-}
-
-EngineCore::EngineCore(const EngineCore &other)
+EngineCore::EngineCore():
+	inputObj(nullptr), graphObj(nullptr)
 {
 }
 
 EngineCore::~EngineCore()
 {
-	// Release the graphics object.
-	if (graphObj)
-	{
-		delete graphObj;
-		graphObj = 0;
-	}
-
-	// Release the input object.
-	if (inputObj)
-	{
-		delete inputObj;
-		inputObj = 0;
-	}
-
+	delete graphObj;
+	delete inputObj;
 	ShutdownWindows();
 }
 

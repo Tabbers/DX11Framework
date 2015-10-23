@@ -8,15 +8,11 @@ D3DCamera::D3DCamera()
 	m_rotation = XMQuaternionIdentity();
 }
 
-D3DCamera::D3DCamera(const D3DCamera &other)
-{
-}
-
 D3DCamera::~D3DCamera()
 {
 }
 
-void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* devCon)
+void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* devCon, XMVECTOR position, XMVECTOR rotation)
 {
 	// Setup the viewport
 	m_viewport.Width = (float)screenWidth;
@@ -25,6 +21,9 @@ void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* dev
 	m_viewport.MaxDepth = 1.0f;
 	m_viewport.TopLeftX = 0.0f;
 	m_viewport.TopLeftY = 0.0f;
+
+	m_position = position;
+	m_rotation = rotation;
 
 	devCon->RSSetViewports(1, &m_viewport);
 
@@ -79,24 +78,6 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 	// Finally create the view matrix from the three updated vectors.
 	m_viewMatrix = XMMatrixLookAtLH(m_position, lookAtVector, upVector);
 
-	return;
-}
-
-void D3DCamera::GetViewMatrix(XMMATRIX & viewMatrix)
-{
-	viewMatrix = this->m_viewMatrix;
-	return;
-}
-
-void D3DCamera::GetOrthomatrix(XMMATRIX & orthoMatrix)
-{
-	orthoMatrix = this->m_orthoMatrix;
-	return;
-}
-
-void D3DCamera::GetProjectionMatrix(XMMATRIX & projectionMatrix)
-{
-	projectionMatrix = this->m_projectionMatrix;
 	return;
 }
 

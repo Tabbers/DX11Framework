@@ -34,6 +34,12 @@
     <Filter Include="Header Files\D3D">
       <UniqueIdentifier>{78c77413-3eaa-4dcc-a57a-5843489ca90d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\D3D\Model">
+      <UniqueIdentifier>{73ba039d-7e95-4f29-b097-7c7f6632187c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\D3D\Model">
+      <UniqueIdentifier>{98bd0786-9e09-4360-9878-1d38b43beb60}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="enginecore.h">
@@ -49,9 +55,6 @@
       <Filter>Header Files\D3D</Filter>
     </ClInclude>
     <ClInclude Include="d3dcamera.h">
-      <Filter>Header Files\D3D</Filter>
-    </ClInclude>
-    <ClInclude Include="d3dmodel.h">
       <Filter>Header Files\D3D</Filter>
     </ClInclude>
     <ClInclude Include="graphicscore.h">
@@ -78,6 +81,15 @@
     <ClInclude Include="vertice.h">
       <Filter>Header Files\D3D</Filter>
     </ClInclude>
+    <ClInclude Include="light.h">
+      <Filter>Header Files\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="texture.h">
+      <Filter>Header Files\D3D\Model</Filter>
+    </ClInclude>
+    <ClInclude Include="d3dmodel.h">
+      <Filter>Header Files\D3D\Model</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="main.cpp">
@@ -88,9 +100,6 @@
     </ClCompile>
     <ClCompile Include="d3dmath.cpp">
       <Filter>Source Files\Math</Filter>
-    </ClCompile>
-    <ClCompile Include="d3dmodel.cpp">
-      <Filter>Source Files\D3D</Filter>
     </ClCompile>
     <ClCompile Include="d3dc.cpp">
       <Filter>Source Files\D3D</Filter>
@@ -124,6 +133,15 @@
     </ClCompile>
     <ClCompile Include="vertice.cpp">
       <Filter>Source Files\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="light.cpp">
+      <Filter>Source Files\D3D</Filter>
+    </ClCompile>
+    <ClCompile Include="d3dmodel.cpp">
+      <Filter>Source Files\D3D\Model</Filter>
+    </ClCompile>
+    <ClCompile Include="texture.cpp">
+      <Filter>Source Files\D3D\Model</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

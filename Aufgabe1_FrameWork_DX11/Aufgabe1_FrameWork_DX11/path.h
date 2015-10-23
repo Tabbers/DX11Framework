@@ -8,8 +8,8 @@
 class Path
 {
 public:
-	Path();
-	~Path();
+	//Path();
+	//~Path();
 
 	void AddPoint(DirectX::XMVECTOR, DirectX::XMVECTOR);
 	DirectX::XMVECTOR GetPositionOfPoint(int);

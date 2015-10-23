@@ -6,7 +6,6 @@ PathPoint::PathPoint()
 {
 }
 
-
 PathPoint::~PathPoint()
 {
 }

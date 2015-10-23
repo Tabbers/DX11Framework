@@ -28,7 +28,7 @@ struct PixelInputType
 {
     float4 position : SV_POSITION;
     float4 color : COLOR;
-	float3 normal : NORMAL;
+	float4 normal : NORMAL;
 };
 
 
@@ -50,8 +50,14 @@ PixelInputType ColVertexShader(VertexInputType input)
 	// Store the input color for the pixel shader to use.
     output.color = input.color;
 
+	float4 tempnormal;
+	tempnormal.x = input.normal.x;
+	tempnormal.y = input.normal.y;
+	tempnormal.z = input.normal.z;
+	tempnormal.w = 0;
+
     // Calculate the normal vector against the world matrix only.
-    output.normal = mul(input.normal, (float3x3)worldMatrix);
+    output.normal = mul(tempnormal, worldMatrix);
 	
 	// Normalize the normal vector.
     output.normal = normalize(output.normal);

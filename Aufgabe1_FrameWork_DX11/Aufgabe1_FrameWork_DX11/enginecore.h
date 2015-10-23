@@ -11,7 +11,6 @@ class EngineCore
 {
 public:
 	EngineCore();
-	EngineCore(const EngineCore&);
 	~EngineCore();
 
 	bool Init();

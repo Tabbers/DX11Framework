@@ -20,7 +20,7 @@ public:
 	D3Dmodel(const D3Dmodel&);
 	~D3Dmodel();
 
-	bool Init(ID3D11Device*,XMVECTOR,XMVECTOR);
+	bool Init(char*,ID3D11Device*,XMVECTOR,XMVECTOR,XMFLOAT4);
 	void Render(ID3D11DeviceContext*);
 
 	int GetIndexCount();

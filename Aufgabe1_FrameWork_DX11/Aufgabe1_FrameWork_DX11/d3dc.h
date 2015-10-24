@@ -18,7 +18,6 @@ public:
 	~D3Dc();
 
 	bool Init(int,int,bool, HWND, bool);
-	void Shutdown();
 	void BeginScene(float ,float, float, float);
 	void EndScene();
 
@@ -29,6 +28,7 @@ public:
 
 	void GetVideoCard(char*,int&);
 	void getScreenDimensions(int&, int&);
+	void SetBackBufferRenderTarget();
 private:
 	bool vsync_on;
 	int videoCardMemory;

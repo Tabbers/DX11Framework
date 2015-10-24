@@ -48,6 +48,8 @@ int D3Dmodel::GetIndexCount()
 
 XMMATRIX D3Dmodel::adjustWorldmatrix(XMMATRIX worldMatrix)
 {
+	m_worldmatrix = XMMatrixScalingFromVector(m_scale);
+	m_worldmatrix = XMMatrixRotationQuaternion(m_rotation);
 	m_worldmatrix = XMMatrixTranslationFromVector(m_position);
 	worldMatrix = XMMatrixMultiply(worldMatrix,m_worldmatrix);
 	return worldMatrix;

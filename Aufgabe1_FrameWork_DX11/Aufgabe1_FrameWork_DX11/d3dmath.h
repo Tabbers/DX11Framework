@@ -2,6 +2,7 @@
 #define _D3DMATH_H_
 
 #include "pathpoint.h"
+#include "globaldefinitions.h"
 
 class D3DMath
 {
@@ -11,6 +12,6 @@ public:
 
 	static DirectX::XMVECTOR KochanekBartels(float,float,float,float, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR);
 	static DirectX::XMVECTOR Squad(float, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR, DirectX::XMVECTOR);
-	static inline float DegreeToRadians(float in) { return (in*3.1415926535898 / 180); };
+	static inline float DegreeToRadians(float in) { return (in*PI / 180); };
 };
 #endif

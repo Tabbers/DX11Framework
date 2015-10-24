@@ -326,3 +326,7 @@ void D3Dc::getScreenDimensions(int & screenWidth, int &screenHeight)
 	screenWidth  = this->screenWidth;
 	screenHeight = this->screenHeight;
 }
+void D3Dc::SetBackBufferRenderTarget()
+{
+	devCon->OMSetRenderTargets(1, &targetView,depthStencilView);
+}

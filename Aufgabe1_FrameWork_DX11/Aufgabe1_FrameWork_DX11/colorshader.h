@@ -12,8 +12,6 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <fstream>
-using namespace DirectX;
-using namespace std;
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -24,22 +22,22 @@ class ColorShader
 private:
 	struct MatrixBufferType
 	{
-		XMMATRIX world;
-		XMMATRIX view;
-		XMMATRIX projection;
+		DirectX::XMMATRIX world;
+		DirectX::XMMATRIX view;
+		DirectX::XMMATRIX projection;
 
-		XMMATRIX lightView;
-		XMMATRIX lightProjection;
+		DirectX::XMMATRIX lightView;
+		DirectX::XMMATRIX lightProjection;
 	};
 	struct LightBufferType
 	{
-		XMFLOAT4 ambientColor;
-		XMFLOAT4 diffuseColor;
+		DirectX::XMFLOAT4 ambientColor;
+		DirectX::XMFLOAT4 diffuseColor;
 	};
 
 	struct LightBufferType2
 	{
-		XMFLOAT3 lightPosition;
+		DirectX::XMFLOAT3 lightPosition;
 		float padding;
 	};
 
@@ -48,15 +46,17 @@ public:
 	~ColorShader();
 
 	bool Init(ID3D11Device*, HWND);
-	bool Render(ID3D11DeviceContext*, int, XMMATRIX, XMMATRIX ,	XMMATRIX, XMMATRIX, XMMATRIX, 
-				XMFLOAT3, XMFLOAT4, XMFLOAT4);
+	bool Render(ID3D11DeviceContext*, int, DirectX::XMMATRIX, DirectX::XMMATRIX,
+		DirectX::XMMATRIX, DirectX::XMMATRIX, DirectX::XMMATRIX, ID3D11ShaderResourceView* depthMapTexture,
+		DirectX::XMFLOAT3, DirectX::XMFLOAT4, DirectX::XMFLOAT4);
 
 private:
 	bool InitShader(ID3D11Device*, HWND, WCHAR*, WCHAR*);
 	void OutputShaderErrorMessage(ID3D10Blob*, HWND, WCHAR*);
 
-	bool SetShaderParameters(ID3D11DeviceContext*, XMMATRIX, XMMATRIX,
-		XMMATRIX, XMMATRIX, XMMATRIX, XMFLOAT3, XMFLOAT4, XMFLOAT4);
+	bool SetShaderParameters(ID3D11DeviceContext*, DirectX::XMMATRIX, DirectX::XMMATRIX,
+		DirectX::XMMATRIX, DirectX::XMMATRIX, DirectX::XMMATRIX, ID3D11ShaderResourceView* depthMapTexture,
+		DirectX::XMFLOAT3, DirectX::XMFLOAT4, DirectX::XMFLOAT4);
 	void RenderShader(ID3D11DeviceContext*, int);
 
 private:

@@ -1,6 +1,5 @@
 #include "d3dmath.h"
 
-
 D3DMath::D3DMath()
 {
 }

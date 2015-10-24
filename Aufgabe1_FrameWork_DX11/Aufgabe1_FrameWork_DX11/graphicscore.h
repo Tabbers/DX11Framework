@@ -2,20 +2,20 @@
 #define _GRAPHICSCORE_H_
 
 #include "d3dc.h"
-#include "d3dmodel.h"
-#include "d3dcamera.h"
-#include "d3dmath.h"
-#include "colorshader.h"
-#include "path.h"
-#include "input.h"
-#include "gameobject.h"
-#include "light.h"
+#include "globaldefinitions.h"
 #include <chrono>
 #include <string>
-#include <vector>
 
-const bool VSYNC = true;
-const float DEG_TO_RAD = 0.0174532925F;
+class D3Dmodel;
+class D3DCamera;
+class D3DRenderToTexture;
+class Input;
+class GameObject;
+class Path;
+class Light;
+class ColorShader;
+class DepthShader;
+class DebugWindow;
 
 class GraphicsCore
 {
@@ -26,19 +26,21 @@ public:
 	bool Init(int, int, HWND);
 	bool Frame(float,Input*,bool);
 private:
-	bool Render(float,Input*,bool);       
-
+	bool Render(float, Input*, bool);
+	bool RenderTexture(bool, XMVECTOR, XMVECTOR);
 private:
 	D3Dc* m_Direct3DWrapper;
 	D3DCamera* m_Camera;
-	D3Dmodel* m_Model;
-	D3Dmodel* m_Model1;
-	D3Dmodel* m_Model2;
-	D3Dmodel* m_Model3;
-	D3Dmodel* m_Model4;
+	D3DRenderToTexture* m_RenderTexture;
+	
+	D3Dmodel* m_Model, *m_Model1, *m_Model2, *m_Model3, *m_Model4;
+	
 	Light*	m_Light;
+		
 	ColorShader* m_colShader;
+	DepthShader* m_depthShader;
 	Path* m_path;
+	DebugWindow* m_dwind;
 
 	// reference to parent window
 	HWND m_hwndin;
@@ -49,7 +51,7 @@ private:
 	float m_elapsedTime = 0;
 	bool  m_playback = false;
 
-	vector<GameObject*> RenderableObjects;
+	Modes m = CAMERA;
 };
 
 #endif // !_GRAPHICSCORE_H_

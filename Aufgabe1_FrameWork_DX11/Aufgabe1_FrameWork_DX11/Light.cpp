@@ -1,5 +1,5 @@
 #include "Light.h"
-
+#include "globaldefinitions.h"
 
 
 Light::Light()
@@ -31,15 +31,15 @@ void Light::Init(int screenWidth, int screenHeight, ID3D11DeviceContext *devCon,
 	devCon->RSSetViewports(1, &m_viewport);
 
 	// Set up fov to 90°
-	m_fieldOfView = 3.141592654f / 4.0f;
+	m_fieldOfView = PI/2.0f;
 	//get Apsect ratio
 	m_screenAspect = (float)screenWidth / (float)screenHeight;
 
 	//Set the projection matrix
-	m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fieldOfView, m_screenAspect, SCREEN_NEAR, SCREEN_DEPTH);
+	m_projectionMatrix = XMMatrixPerspectiveFovLH(m_fieldOfView, m_screenAspect, SCREEN_NEARL, SCREEN_DEPTHL);
 
 	//OrthoMatrix
-	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, SCREEN_NEAR, SCREEN_DEPTH);
+	m_orthoMatrix = XMMatrixOrthographicLH((float)screenWidth, (float)screenHeight, SCREEN_NEARL, SCREEN_DEPTHL);
 
 
 }
@@ -65,6 +65,9 @@ void Light::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
 	lookAtVector = XMVector3TransformCoord(lookAtVector, rotationMatrix);
+	m_lookAtVector.x = lookAtVector.m128_f32[0];
+	m_lookAtVector.y = lookAtVector.m128_f32[1];
+	m_lookAtVector.z = lookAtVector.m128_f32[2];
 	upVector = XMVector3TransformCoord(upVector, rotationMatrix);
 	rightVector = XMVector3TransformCoord(upVector, rotationMatrix);
 	if (move)
@@ -81,4 +84,8 @@ void Light::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 
 	// Finally create the view matrix from the three updated vectors.
 	m_viewMatrix = XMMatrixLookAtLH(m_position, lookAtVector, upVector);
+}
+void Light::ResetViewport(ID3D11DeviceContext* devCon)
+{
+	devCon->RSSetViewports(1, &m_viewport);
 }

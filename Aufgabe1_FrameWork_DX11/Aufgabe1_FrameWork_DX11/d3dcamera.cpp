@@ -1,6 +1,5 @@
 #include "d3dcamera.h"
-
-
+#include "globaldefinitions.h"
 
 D3DCamera::D3DCamera()
 {
@@ -28,7 +27,7 @@ void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* dev
 	devCon->RSSetViewports(1, &m_viewport);
 
 	// Set up fov to 90°
-	m_fieldOfView = 3.141592654f / 4.0f;
+	m_fieldOfView = 3.141592654f/4.0f;
 	//get Apsect ratio
 	m_screenAspect = (float)screenWidth / (float)screenHeight;
 
@@ -80,4 +79,7 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 
 	return;
 }
-
+void D3DCamera::ResetViewport(ID3D11DeviceContext* devCon)
+{
+	devCon->RSSetViewports(1, &m_viewport);
+}

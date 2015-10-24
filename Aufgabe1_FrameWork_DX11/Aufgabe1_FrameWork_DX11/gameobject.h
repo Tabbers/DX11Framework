@@ -20,6 +20,7 @@ public:
 		m_position = position;
 		m_rotation = rotation;
 	};
+	inline void SetScale(float scale) { m_scale = XMVectorSet(scale, scale, scale, 0); };
 	inline void SetPosition(XMVECTOR position) { m_position = position; };
 	inline void SetRotation(XMVECTOR rotation) { m_rotation = rotation; };
 
@@ -28,5 +29,6 @@ public:
 protected:
 	XMVECTOR m_position;
 	XMVECTOR m_rotation;
+	XMVECTOR m_scale;
 };
 

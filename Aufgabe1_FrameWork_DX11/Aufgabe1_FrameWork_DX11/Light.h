@@ -11,7 +11,10 @@ public:
 
 	void Init(int, int, ID3D11DeviceContext*,XMVECTOR,XMVECTOR);
 	void Render(XMVECTOR, XMVECTOR, bool);
+	void ResetViewport(ID3D11DeviceContext * devCon);
 	//Getter
+	inline void GetViewMatrix(XMMATRIX& viewMatrix) { viewMatrix= this->m_viewMatrix; };
+	inline void GetProjectionMatrix(XMMATRIX& projectMatrix) { projectMatrix = this->m_projectionMatrix; };
 	inline XMMATRIX GetViewMatrix() { return this->m_viewMatrix; };
 	inline XMMATRIX GetProjectionMatrix() { return this->m_projectionMatrix; };
 	inline XMFLOAT4 GetDiffuseColor() { return this->m_diffuseColor; };
@@ -23,6 +26,7 @@ public:
 		Position.z = m_position.m128_f32[2];
 		return Position;
 	}
+	inline XMFLOAT3 GetLookAt() { return m_lookAtVector; };
 	//Setter
 	inline void SetAmbientColor(float r, float g, float b, float a) 
 	{
@@ -41,12 +45,10 @@ public:
 public:
 	float speedMovement = 10;
 	float speedRotation = 1;
-
-	const float SCREEN_DEPTH = 1000.0f;
-	const float SCREEN_NEAR = 0.1F;
 private:
 	XMFLOAT4 m_diffuseColor;
 	XMFLOAT4 m_ambientColor;
+	XMFLOAT3 m_lookAtVector;
 	XMMATRIX m_viewMatrix;
 
 	//Matrix housing projection positions

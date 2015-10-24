@@ -40,14 +40,14 @@ bool ColorShader::Init(ID3D11Device* device, HWND hwnd)
 }
 
 
-bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-							  XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMFLOAT3 lightposition,
-							  XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
+bool ColorShader::Render(ID3D11DeviceContext* deviceContext, int indexCount, DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix,
+	DirectX::XMMATRIX projectionMatrix, DirectX::XMMATRIX lightViewMatrix, DirectX::XMMATRIX lightProjectionMatrix,
+	ID3D11ShaderResourceView* depthMapTexture, DirectX::XMFLOAT3 lightposition,	DirectX::XMFLOAT4 ambientColor, DirectX::XMFLOAT4 diffuseColor)
 {
 	bool result;
 
 	// Set the shader parameters that it will use for rendering.
-	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,lightViewMatrix,lightProjectionMatrix, lightposition,ambientColor,diffuseColor);
+	result = SetShaderParameters(deviceContext, worldMatrix, viewMatrix, projectionMatrix,lightViewMatrix,lightProjectionMatrix, depthMapTexture,lightposition,ambientColor,diffuseColor);
 	if(!result)	return false;
 
 	// Now render the prepared buffers with the shader.
@@ -212,7 +212,7 @@ void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 {
 	char* compileErrors;
 	unsigned long long bufferSize, i;
-	ofstream fout;
+	std::ofstream fout;
 
 
 	// Get a pointer to the error message text buffer.
@@ -244,9 +244,9 @@ void ColorShader::OutputShaderErrorMessage(ID3D10Blob* errorMessage, HWND hwnd, 
 }
 
 
-bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worldMatrix, XMMATRIX viewMatrix,
-	XMMATRIX projectionMatrix, XMMATRIX lightViewMatrix, XMMATRIX lightProjectionMatrix, XMFLOAT3 lightPosition,
-	XMFLOAT4 ambientColor, XMFLOAT4 diffuseColor)
+bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix,
+	DirectX::XMMATRIX projectionMatrix, DirectX::XMMATRIX lightViewMatrix, DirectX::XMMATRIX lightProjectionMatrix, ID3D11ShaderResourceView* depthMapTexture, DirectX::XMFLOAT3 lightPosition,
+	DirectX::XMFLOAT4 ambientColor, DirectX::XMFLOAT4 diffuseColor)
 {
 	HRESULT result;
     D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -288,6 +288,7 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worl
 	// Finanly set the constant buffer in the vertex shader with the updated values.
 	devCon->VSSetConstantBuffers(bufferNumber, 1, &matrixBuffer);
 
+	devCon->PSSetShaderResources(0, 1, &depthMapTexture);
 
 	result = devCon->Map(lightBuffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
 	if (FAILED(result)) return false;
@@ -303,6 +304,8 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devCon, XMMATRIX worl
 	bufferNumber = 0;
 	devCon->PSSetConstantBuffers(bufferNumber, 1, &lightBuffer);
 	
+	result = devCon->Map(lightBuffer2, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource);
+	if (FAILED(result))	return false;
 	// Get a pointer to the data in the constant buffer.
 	dataPtr3 = (LightBufferType2*)mappedResource.pData;
 

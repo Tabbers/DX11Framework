@@ -13,6 +13,7 @@ public:
 
 	void Init(int, int, ID3D11DeviceContext*, XMVECTOR, XMVECTOR);
 	void Render(XMVECTOR, XMVECTOR,bool);
+	void ResetViewport(ID3D11DeviceContext * devCon);
 	//getter
 	inline void GetViewMatrix(XMMATRIX& viewMatrix) { viewMatrix = this->m_viewMatrix; };
 	inline void GetOrthomatrix(XMMATRIX& orthoMatrix) { orthoMatrix = this->m_orthoMatrix; };
@@ -20,9 +21,6 @@ public:
 public:
 	float speedMovement = 10;
 	float speedRotation = 1;
-
-	const float SCREEN_DEPTH = 1000.0f;
-	const float SCREEN_NEAR = 0.1F;
 private:	
 	//Matrix housing View Postion
 	XMMATRIX m_viewMatrix;

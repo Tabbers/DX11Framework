@@ -6,12 +6,14 @@ class Vertice
 {
 public:
 	Vertice();
-	Vertice(DirectX::XMFLOAT3, DirectX::XMFLOAT4, DirectX::XMFLOAT3);
+	Vertice(DirectX::XMFLOAT3, DirectX::XMFLOAT2, DirectX::XMFLOAT3);
 	~Vertice();
 
 public:
 	DirectX::XMFLOAT3 m_position;
-	DirectX::XMFLOAT4 m_color;
+	DirectX::XMFLOAT2 m_textcord;
 	DirectX::XMFLOAT3 m_normal;
+	DirectX::XMFLOAT3 m_tangent;
+	DirectX::XMFLOAT3 m_binormal;
 };
 

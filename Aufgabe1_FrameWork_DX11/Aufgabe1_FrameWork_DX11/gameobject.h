@@ -15,14 +15,16 @@ public:
 	//Getter
 	XMVECTOR GetPosition();
 	XMVECTOR GetRotation();
+	inline bool	GetRenderOnShadowMap() { return m_renderonShadow; };
 	//setter
 	inline void SetTransform(XMVECTOR position, XMVECTOR rotation) {
 		m_position = position;
 		m_rotation = rotation;
 	};
-	inline void SetScale(float scale) { m_scale = XMVectorSet(scale, scale, scale, 0); };
+	inline void SetScale(float scalex, float scaley, float scalez) { m_scale = XMVectorSet(scalex, scaley, scalez, 0); };
 	inline void SetPosition(XMVECTOR position) { m_position = position; };
 	inline void SetRotation(XMVECTOR rotation) { m_rotation = rotation; };
+	inline void	SetRenderOnShadowMap(bool renderonShadow) { m_renderonShadow = renderonShadow; };
 
 	virtual bool Init(ID3D11Device*,XMVECTOR, XMVECTOR);
 	virtual void Render(ID3D11DeviceContext*);
@@ -30,5 +32,7 @@ protected:
 	XMVECTOR m_position;
 	XMVECTOR m_rotation;
 	XMVECTOR m_scale;
+
+	bool m_renderonShadow = true;
 };
 

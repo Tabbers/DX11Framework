@@ -4,6 +4,8 @@
 
 GameObject::GameObject()
 {
+	m_scale = XMVectorSet(1, 1, 1, 0);
+	m_rotation = XMVectorSet(0,0, 0, 0);
 }
 
 

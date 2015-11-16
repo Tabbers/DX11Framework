@@ -69,9 +69,6 @@
     <ClInclude Include="graphicscore.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="input.h">
-      <Filter>Header Files\Core</Filter>
-    </ClInclude>
     <ClInclude Include="path.h">
       <Filter>Header Files\Math</Filter>
     </ClInclude>
@@ -113,6 +110,12 @@
     </ClInclude>
     <ClInclude Include="debugwindow.h">
       <Filter>Header Files\D3D\Rendering</Filter>
+    </ClInclude>
+    <ClInclude Include="DDSTextureLoader.h">
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="input.h">
+      <Filter>Header Files\D3D\Model</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -175,6 +178,9 @@
     </ClCompile>
     <ClCompile Include="debugwindow.cpp">
       <Filter>Source Files\D3D\Rendering</Filter>
+    </ClCompile>
+    <ClCompile Include="DDSTextureLoader.cpp">
+      <Filter>Source Files\Core</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

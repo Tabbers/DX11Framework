@@ -65,7 +65,7 @@ bool Model::LoadModel(char * filename)
 		for (i = 0; i<m_vertexcount; i++)
 		{
 			fin >> vertices[i].m_position.x >> vertices[i].m_position.y >> vertices[i].m_position.z;
-			fin >> vertices[i].m_color.x >> vertices[i].m_color.y >> vertices[i].m_color.z >> vertices[i].m_color.w;
+			fin >> vertices[i].m_textcord.x >> vertices[i].m_textcord.y;
 			fin >> vertices[i].m_normal.x >> vertices[i].m_normal.y >> vertices[i].m_normal.z;
 			indices[i] = i;
 		}
@@ -86,14 +86,6 @@ void Model::ReleaseModel()
 	}
 
 	return;
-}
-
-void Model::setObjectColor(DirectX::XMFLOAT4 color)
-{
-	for (int i = 0; i < m_vertexcount; i++)
-	{
-		vertices[i].m_color = color;
-	}
 }
 
 

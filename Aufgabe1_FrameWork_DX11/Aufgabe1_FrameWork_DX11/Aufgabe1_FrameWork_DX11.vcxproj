@@ -25,6 +25,7 @@
     <ClInclude Include="d3dmath.h" />
     <ClInclude Include="d3dmodel.h" />
     <ClInclude Include="d3drendertotexture.h" />
+    <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="debugwindow.h" />
     <ClInclude Include="depthShader.h" />
     <ClInclude Include="enginecore.h" />
@@ -47,6 +48,7 @@
     <ClCompile Include="d3dmath.cpp" />
     <ClCompile Include="d3dmodel.cpp" />
     <ClCompile Include="d3drendertotexture.cpp" />
+    <ClCompile Include="DDSTextureLoader.cpp" />
     <ClCompile Include="debugwindow.cpp" />
     <ClCompile Include="depthShader.cpp" />
     <ClCompile Include="enginecore.cpp" />

@@ -110,7 +110,7 @@ void EngineCore::InitWindows(int &screenWidth, int &screenHeight)
 	appName = L"Engine";
 
 	// Setup the windows class with default settings.
-	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
+	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC ;
 	wc.lpfnWndProc = WndProc;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
@@ -137,7 +137,7 @@ void EngineCore::InitWindows(int &screenWidth, int &screenHeight)
 
 	// Create the window with the screen settings and get the handle to it.
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW, appName, appName,
-		WS_CLIPSIBLINGS | WS_CLIPCHILDREN | WS_POPUP,
+		WS_SYSMENU | WS_OVERLAPPED | WS_CAPTION | WS_VISIBLE | WS_MINIMIZEBOX,
 		posX, posY, screenWidth, screenHeight, NULL, NULL, instance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.

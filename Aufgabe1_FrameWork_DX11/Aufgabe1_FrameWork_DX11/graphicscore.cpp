@@ -11,8 +11,7 @@
 #include "depthShader.h"
 
 GraphicsCore::GraphicsCore() :
-	m_path(nullptr), m_Direct3DWrapper(nullptr), m_Camera(nullptr), m_Model(nullptr), 
-	m_Model1(nullptr), m_Model2(nullptr),m_Model3(nullptr), m_Model4(nullptr), 
+	m_path(nullptr), m_Direct3DWrapper(nullptr), m_Camera(nullptr),
 	m_colShader(nullptr),m_depthShader(nullptr), m_Light(nullptr)
 {
 }
@@ -22,14 +21,16 @@ GraphicsCore::~GraphicsCore()
 	delete m_colShader;
 	delete m_depthShader;
 	delete m_path;
-	delete m_Model;
-	delete m_Model1;
-	delete m_Model2;
-	delete m_Model3;
-	delete m_Model4;
 	delete m_Camera;
 	delete m_Light;
 	delete m_Direct3DWrapper;
+	if (renderable.size() > 0)
+	{
+		for each (D3Dmodel* model in renderable)
+		{
+			delete model;
+		}
+	}
 	return;
 }
 
@@ -39,72 +40,86 @@ bool GraphicsCore::Init(int screenWidth, int screenHeight, HWND hwnd)
 	m_hwndin = hwnd;
 	XMVECTOR tempPos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR tempRot = XMQuaternionRotationRollPitchYaw(0, 0, 0);
+	D3Dmodel* m_Model = nullptr;
+	D3Dmodel* m_Model1 = nullptr;
+	D3Dmodel* m_Model2 = nullptr;
+	D3Dmodel* m_Model3 = nullptr;
+	D3Dmodel* m_Model4 = nullptr;
 
-	m_Direct3DWrapper = new D3Dc;
+	m_Direct3DWrapper = new D3Dc();
 	if (!m_Direct3DWrapper) return false;
 
 	result = m_Direct3DWrapper->Init(screenWidth, screenHeight, VSYNC, hwnd, false);
 	if (!result) return false;
 
-	m_Camera = new D3DCamera;
+	tempPos = XMVectorSet(0.0f, 0.0f, -10.0f, 0.0f);
+	m_Camera = new D3DCamera();
 	if (!m_Camera) return false;
 	m_Camera->Init(screenWidth, screenHeight, m_Direct3DWrapper->GetDeviceContext(),tempPos,tempRot);
 
-	m_Model = new D3Dmodel;
+	tempPos = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	m_Model = new D3Dmodel();
 	if (!m_Model) return false;
-	result = m_Model->Init("Data/cube.txt",m_Direct3DWrapper->GetDevice(), tempPos, tempRot, {1,0,0,1});
+	result = m_Model->Init("Data/cube.txt",L"",L"",m_Direct3DWrapper->GetDevice(),m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
 	if (!result) return false;
-
-	tempPos = XMVectorSet(5.0f, 0.0f, 0.0f, 0.0f);
-	m_Model1 = new D3Dmodel;
-	if (!m_Model1) return false;
-	result = m_Model1->Init("Data/cube.txt",m_Direct3DWrapper->GetDevice(),tempPos,tempRot, { 0,1,0,1 });
-	if (!result) return false;
+	renderable.push_back(m_Model);
 
 	tempPos = XMVectorSet(5.0f, 5.0f, 0.0f, 0.0f);
-	m_Model2 = new D3Dmodel;
-	if (!m_Model2) return false;
-	result = m_Model2->Init("Data/cube.txt",m_Direct3DWrapper->GetDevice(),tempPos,tempRot, { 0,0,1,1 });
+	m_Model1 = new D3Dmodel();
+	if (!m_Model1) return false;
+	result = m_Model1->Init("Data/cube.txt",L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(),tempPos,tempRot);
 	if (!result) return false;
+	renderable.push_back(m_Model1);
+
+	tempPos = XMVectorSet(5.0f, 0.0f, 0.0f, 0.0f);
+	m_Model2 = new D3Dmodel();
+	if (!m_Model2) return false;
+	result = m_Model2->Init("Data/cube.txt", L"", L"",m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(),tempPos,tempRot);
+	if (!result) return false;
+	renderable.push_back(m_Model2);
 
 	tempPos = XMVectorSet(0.0f, -5.0f, 0.0f, 0.0f);
-	m_Model3 = new D3Dmodel;
+	m_Model3 = new D3Dmodel();
 	if (!m_Model3) return false;
-	result = m_Model3->Init("Data/plane01.txt", m_Direct3DWrapper->GetDevice(), tempPos, tempRot, { 1,1,1,1 });
+	result = m_Model3->Init("Data/plane.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
+	m_Model3->SetScale(100,1,100);
 	if (!result) return false;
+	renderable.push_back(m_Model3);
 
-	tempPos = XMVectorSet(0.0f, 10.0f, -50.0f, 0.0f);
+	tempPos = XMVectorSet(0.0f, 10.0f, -5.0f, 0.0f);
 	tempRot = XMQuaternionRotationRollPitchYaw(0,0,0);
 
-	m_Light = new Light;
+	m_Light = new Light();
 	if (!m_Light) return false;
 	m_Light->Init(SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT, m_Direct3DWrapper->GetDeviceContext(),tempPos,tempRot);
 	m_Light->SetAmbientColor(0.15f, 0.15f, 0.15f, 1.0f);
 	m_Light->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 
-	m_Model4 = new D3Dmodel;
+	m_Model4 = new D3Dmodel();
 	if (!m_Model4) return false;
-	result = m_Model4->Init("Data/cube.txt", m_Direct3DWrapper->GetDevice(), m_Light->GetPosition(), m_Light->GetRotation(), { 1,1,0,1 });
-	m_Model4->SetScale(0.5);
+	result = m_Model4->Init("Data/cube.txt",L"",L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), m_Light->GetPosition(), m_Light->GetRotation());
+	m_Model4->SetScale(0.5,0.5,0.5);
 	if (!result) return false;
+	m_Model4->SetRenderOnShadowMap(false);
+	renderable.push_back(m_Model4);
 
-	m_RenderTexture = new D3DRenderToTexture;
+	m_RenderTexture = new D3DRenderToTexture();
 	if (!m_RenderTexture) return false;
 	result = m_RenderTexture->Init(m_Direct3DWrapper->GetDevice(),SHADOWMAP_WIDTH,SHADOWMAP_HEIGHT);
 	if (!result) return false;
 
 	//Shader Initialisation
-	m_depthShader = new DepthShader;
+	m_depthShader = new DepthShader();
 	if (!m_depthShader) return false;
 	result = m_depthShader->Init(m_Direct3DWrapper->GetDevice(), hwnd);
 	if (!result) return false;
 
-	m_colShader = new ColorShader;
+	m_colShader = new ColorShader();
 	if (!m_colShader) return false;
 	result = m_colShader->Init(m_Direct3DWrapper->GetDevice(), hwnd);
 	if (!result) return false;
 
-	m_path = new Path;
+	m_path = new Path();
 	if (!m_path) return false;
 
 	return true;
@@ -154,6 +169,38 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 
 			// Set point using camera Rotation and Position;
 			if (inKey->Keystate(VK_SPACE) && !inKey->KeystateOld(VK_SPACE)) m_path->AddPoint(m_Camera->GetPosition(), m_Camera->GetRotation());
+			if (inKey->Keystate(VK_PRIOR) && !inKey->KeystateOld(VK_PRIOR))
+			{
+				int temp = m_colShader->GetFilter();
+				if (temp < 9) temp++;
+				else temp = 0;
+				m_colShader->SetFilter(temp);
+				SetWindowNameOnFilterChange();
+			}
+			if (inKey->Keystate(VK_NEXT) && !inKey->KeystateOld(VK_NEXT))
+			{
+				int temp = m_colShader->GetFilter();
+				if (temp > 0) temp--;
+				else temp = 8;
+				m_colShader->SetFilter(temp);
+				SetWindowNameOnFilterChange();
+			}
+			if (inKey->Keystate(VK_OEM_PLUS) && !inKey->KeystateOld(VK_OEM_PLUS))
+			{
+				int temp = m_colShader->GetMip();
+				if (temp < 9) temp++;
+				else temp = 0;
+				m_colShader->SetMip(temp);
+
+			}
+			if (inKey->Keystate(VK_OEM_MINUS) && !inKey->KeystateOld(VK_OEM_MINUS))
+			{
+				int temp = m_colShader->GetMip();
+				if (temp > 0) temp--;
+				else temp = 9;
+				m_colShader->SetMip(temp);
+
+			}
 		}
 		if (m == LIGHT)
 		{
@@ -256,44 +303,21 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Camera->GetProjectionMatrix(projectionMatrix);
 
-	m_Model->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model->GetIndexCount(), m_Model->adjustWorldmatrix(worldMatrix),
-								viewMatrix, projectionMatrix, m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(),
-								m_RenderTexture->GetShaderRessourceView(), m_Light->GetXMFLOAT3Position(), m_Light->GetAmbientColor(), 
-								m_Light->GetDiffuseColor());
-	if (!result) return false;
+	Matrices sceneInfo(worldMatrix, viewMatrix, projectionMatrix);
+	LightData lightInfo(m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetXMFLOAT3Position());
 
-	m_Model1->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model1->GetIndexCount(), m_Model1->adjustWorldmatrix(worldMatrix),
-								viewMatrix, projectionMatrix, m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(),
-								m_RenderTexture->GetShaderRessourceView(), m_Light->GetXMFLOAT3Position(), m_Light->GetAmbientColor(),
-								m_Light->GetDiffuseColor());
-	if (!result) return false;
+	renderable[4]->SetPosition(m_Light->GetPosition());
+	renderable[4]->SetRotation(m_Light->GetRotation());
 
-	m_Model2->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model2->GetIndexCount(), m_Model2->adjustWorldmatrix(worldMatrix),
-								viewMatrix, projectionMatrix, m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(),
-								m_RenderTexture->GetShaderRessourceView(), m_Light->GetXMFLOAT3Position(), m_Light->GetAmbientColor(),
-								m_Light->GetDiffuseColor());
-	if (!result) return false;
-
-	m_Model3->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model3->GetIndexCount(), m_Model3->adjustWorldmatrix(worldMatrix),
-								viewMatrix, projectionMatrix, m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(),
-								m_RenderTexture->GetShaderRessourceView(), m_Light->GetXMFLOAT3Position(), m_Light->GetAmbientColor(),
-								m_Light->GetDiffuseColor());
-	if (!result) return false;
-	m_Model4->SetPosition(m_Light->GetPosition());
-	m_Model4->SetRotation(m_Light->GetRotation());
-	m_Model4->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model4->GetIndexCount(), m_Model4->adjustWorldmatrix(worldMatrix),
-								viewMatrix, projectionMatrix, m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(),
-								m_RenderTexture->GetShaderRessourceView(), m_Light->GetXMFLOAT3Position(), m_Light->GetAmbientColor(),
-								m_Light->GetDiffuseColor());
-	if (!result) return false;
+	for each (D3Dmodel* model in renderable)
+	{
+		model->Render(m_Direct3DWrapper->GetDeviceContext());
+		sceneInfo.worldMatrix = model->adjustWorldmatrix(worldMatrix);
+		result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(),m_Direct3DWrapper->GetDevice(), model->GetIndexCount(), sceneInfo, lightInfo, m_RenderTexture->GetShaderRessourceView(), model->GetTexture()->GetResourceView(),model->GetNormalMap()->GetResourceView());
+		if (!result) return false;	
+	}
 
 	m_Direct3DWrapper->EndScene();
-
 	return true;
 }
 
@@ -317,26 +341,51 @@ bool GraphicsCore::RenderTexture(bool Editmode, XMVECTOR translateL, XMVECTOR ro
 	m_Light->GetViewMatrix(lightViewMatrix);
 	m_Light->GetProjectionMatrix(lightProjectionMatrix);
 
-	m_Model->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model->GetIndexCount(), m_Model->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
-	if (!result) return false;
-
-	m_Model1->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model1->GetIndexCount(), m_Model1->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
-	if (!result) return false;
-
-	m_Model2->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model2->GetIndexCount(), m_Model2->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
-	if (!result) return false;
-
-	m_Model3->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model3->GetIndexCount(), m_Model3->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
-	if (!result) return false;
-
-	m_Model4->Render(m_Direct3DWrapper->GetDeviceContext());
-	result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Model4->GetIndexCount(), m_Model4->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
+	for each (D3Dmodel* model in renderable)
+	{
+		if (model->GetRenderOnShadowMap())
+		{
+			model->Render(m_Direct3DWrapper->GetDeviceContext());
+			result = m_depthShader->Render(m_Direct3DWrapper->GetDeviceContext(), model->GetIndexCount(), model->adjustWorldmatrix(worldMatrix), lightViewMatrix, lightProjectionMatrix);
+			if (!result) return false;
+		}
+	}
 	
 	// Reset the render target back to the original back buffer and not the render to texture anymore.
 	m_Direct3DWrapper->SetBackBufferRenderTarget();
 	return result;
+}
+
+void GraphicsCore::SetWindowNameOnFilterChange()
+{
+	switch (m_colShader->GetFilter())
+	{
+	case 0:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_MIP_POINT");
+		break;
+	case 1:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR");
+		break;
+	case 2:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT");
+		break;
+	case 3:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR");
+		break;
+	case 4:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT");
+		break;
+	case 5:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR");
+		break;
+	case 6:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT");
+		break;
+	case 7:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_MIP_LINEAR");
+		break;
+	case 8:
+		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_ANISOTROPIC");
+		break;
+	}
 }

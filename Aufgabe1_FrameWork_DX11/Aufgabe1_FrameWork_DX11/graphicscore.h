@@ -5,6 +5,7 @@
 #include "globaldefinitions.h"
 #include <chrono>
 #include <string>
+#include <vector>
 
 class D3Dmodel;
 class D3DCamera;
@@ -28,13 +29,14 @@ public:
 private:
 	bool Render(float, Input*, bool);
 	bool RenderTexture(bool, XMVECTOR, XMVECTOR);
+	void SetWindowNameOnFilterChange();
 private:
 	D3Dc* m_Direct3DWrapper;
 	D3DCamera* m_Camera;
 	D3DRenderToTexture* m_RenderTexture;
-	
-	D3Dmodel* m_Model, *m_Model1, *m_Model2, *m_Model3, *m_Model4;
-	
+
+	std::vector<D3Dmodel*> renderable;
+
 	Light*	m_Light;
 		
 	ColorShader* m_colShader;

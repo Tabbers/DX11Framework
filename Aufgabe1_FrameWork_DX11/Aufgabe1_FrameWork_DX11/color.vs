@@ -25,15 +25,19 @@ cbuffer LightBuffer2
 struct VertexInputType
 {
     float4 position : POSITION;
-    float4 color : COLOR;
+    float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 };
 
 struct PixelInputType
 {
     float4 position : SV_POSITION;
-    float4 color : COLOR;
+    float2 tex : TEXCOORD0;
 	float3 normal : NORMAL;
+	float3 tangent : TANGENT;
+	float3 binormal : BINORMAL;
 	float4 lightViewPosition : TEXCOORD1;
 	float3 lightPos : TEXCOORD2;
 };
@@ -57,14 +61,23 @@ PixelInputType ColVertexShader(VertexInputType input)
     output.lightViewPosition = mul(output.lightViewPosition, lightProjectionMatrix);
 
 	// Store the input color for the pixel shader to use.
-    output.color = input.color;
+    output.tex = input.tex;
 
 	// Calculate the normal vector against the world matrix only.
     output.normal = mul(input.normal, (float3x3)worldMatrix);
-	
     // Normalize the normal vector.
     output.normal = normalize(output.normal);
-    
+
+	// Calculate the normal vector against the world matrix only.
+    output.binormal = mul(input.binormal, (float3x3)worldMatrix);
+    // Normalize the normal vector.
+    output.binormal = normalize(output.binormal);
+
+	// Calculate the normal vector against the world matrix only.
+    output.tangent = mul(input.tangent, (float3x3)worldMatrix);
+    // Normalize the normal vector.
+    output.tangent = normalize(output.tangent);
+
 	// Calculate the position of the vertex in the world.
     worldPosition = mul(input.position, worldMatrix);
 

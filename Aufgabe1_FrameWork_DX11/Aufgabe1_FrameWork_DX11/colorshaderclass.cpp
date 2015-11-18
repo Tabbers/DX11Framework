@@ -318,7 +318,7 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devcon, ID3D11Device*
 	samplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
 	samplerDesc.MipLODBias = 0.0f;
-	samplerDesc.MaxAnisotropy = 1;
+	samplerDesc.MaxAnisotropy = 16;
 	samplerDesc.ComparisonFunc = D3D11_COMPARISON_ALWAYS;
 	samplerDesc.BorderColor[0] = 0;
 	samplerDesc.BorderColor[1] = 0;
@@ -395,6 +395,7 @@ bool ColorShader::SetShaderParameters(ID3D11DeviceContext* devcon, ID3D11Device*
 
 	dataPtr2->ambientColor = lightInfo.ambientColor;
 	dataPtr2->diffuseColor = lightInfo.diffuseColor;
+	dataPtr2->drawNormal = sceneInfo.DrawNormal;
 	// unlock light buffer
 	devcon->Unmap(lightBuffer,0);
 	//set the position of the light buffer in the pixelshader

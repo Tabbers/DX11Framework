@@ -24,6 +24,8 @@ private:
 	{
 		DirectX::XMFLOAT4 ambientColor;
 		DirectX::XMFLOAT4 diffuseColor;
+		bool drawNormal;
+		DirectX::XMFLOAT3 padding;
 	};
 
 	struct LightBufferType2

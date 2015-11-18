@@ -25,6 +25,8 @@ public:
 	inline void SetPosition(XMVECTOR position) { m_position = position; };
 	inline void SetRotation(XMVECTOR rotation) { m_rotation = rotation; };
 	inline void	SetRenderOnShadowMap(bool renderonShadow) { m_renderonShadow = renderonShadow; };
+	inline void	SetDrawNormalMap(bool drawNormalMap) { m_drawNormalMap = drawNormalMap; };
+	inline bool	GetDrawNormalMap() { return m_drawNormalMap; };
 
 	virtual bool Init(ID3D11Device*,XMVECTOR, XMVECTOR);
 	virtual void Render(ID3D11DeviceContext*);
@@ -34,5 +36,6 @@ protected:
 	XMVECTOR m_scale;
 
 	bool m_renderonShadow = true;
+	bool m_drawNormalMap = true;
 };
 

@@ -21,6 +21,7 @@ struct Matrices
 	DirectX::XMMATRIX worldMatrix;
 	DirectX::XMMATRIX viewMatrix;
 	DirectX::XMMATRIX projectionMatrix;
+	bool DrawNormal;
 
 	inline Matrices(DirectX::XMMATRIX worldMatrix, DirectX::XMMATRIX viewMatrix, DirectX::XMMATRIX projectionMatrix)
 	{

@@ -169,38 +169,6 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 
 			// Set point using camera Rotation and Position;
 			if (inKey->Keystate(VK_SPACE) && !inKey->KeystateOld(VK_SPACE)) m_path->AddPoint(m_Camera->GetPosition(), m_Camera->GetRotation());
-			if (inKey->Keystate(VK_PRIOR) && !inKey->KeystateOld(VK_PRIOR))
-			{
-				int temp = m_colShader->GetFilter();
-				if (temp < 9) temp++;
-				else temp = 0;
-				m_colShader->SetFilter(temp);
-				SetWindowNameOnFilterChange();
-			}
-			if (inKey->Keystate(VK_NEXT) && !inKey->KeystateOld(VK_NEXT))
-			{
-				int temp = m_colShader->GetFilter();
-				if (temp > 0) temp--;
-				else temp = 8;
-				m_colShader->SetFilter(temp);
-				SetWindowNameOnFilterChange();
-			}
-			if (inKey->Keystate(VK_OEM_PLUS) && !inKey->KeystateOld(VK_OEM_PLUS))
-			{
-				int temp = m_colShader->GetMip();
-				if (temp < 9) temp++;
-				else temp = 0;
-				m_colShader->SetMip(temp);
-
-			}
-			if (inKey->Keystate(VK_OEM_MINUS) && !inKey->KeystateOld(VK_OEM_MINUS))
-			{
-				int temp = m_colShader->GetMip();
-				if (temp > 0) temp--;
-				else temp = 9;
-				m_colShader->SetMip(temp);
-
-			}
 		}
 		if (m == LIGHT)
 		{
@@ -223,6 +191,52 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 			if (inKey->Keystate(VK_SHIFT))	translateL = XMVectorSetY(translateL,  m_Light->speedMovement*delta_time);
 			//Down									 
 			if (inKey->Keystate(VK_CONTROL))	translateL = XMVectorSetY(translateL, -1 * m_Light->speedMovement*delta_time);
+		}
+		if (inKey->Keystate(VK_PRIOR) && !inKey->KeystateOld(VK_PRIOR))
+		{
+			int temp = m_colShader->GetFilter();
+			if (temp < 9) temp++;
+			else temp = 0;
+			m_colShader->SetFilter(temp);
+			SetWindowNameOnFilterChange();
+		}
+		if (inKey->Keystate(VK_NEXT) && !inKey->KeystateOld(VK_NEXT))
+		{
+			int temp = m_colShader->GetFilter();
+			if (temp > 0) temp--;
+			else temp = 8;
+			m_colShader->SetFilter(temp);
+			SetWindowNameOnFilterChange();
+		}
+		if (inKey->Keystate(VK_OEM_PLUS) && !inKey->KeystateOld(VK_OEM_PLUS))
+		{
+			int temp = m_colShader->GetMip();
+			if (temp < 9) temp++;
+			else temp = 0;
+			m_colShader->SetMip(temp);
+
+		}
+		if (inKey->Keystate(VK_OEM_MINUS) && !inKey->KeystateOld(VK_OEM_MINUS))
+		{
+			int temp = m_colShader->GetMip();
+			if (temp > 0) temp--;
+			else temp = 9;
+			m_colShader->SetMip(temp);
+
+		}
+		if (inKey->Keystate('N') && !inKey->KeystateOld('N'))
+		{
+			for each(D3Dmodel* model in renderable)
+			{
+				if (model->GetDrawNormalMap())
+				{
+					model->SetDrawNormalMap(false);
+				}
+				else
+				{
+					model->SetDrawNormalMap(true);
+				}
+			}
 		}
 	}
 	else
@@ -311,6 +325,7 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 
 	for each (D3Dmodel* model in renderable)
 	{
+		sceneInfo.DrawNormal = model->GetDrawNormalMap();
 		model->Render(m_Direct3DWrapper->GetDeviceContext());
 		sceneInfo.worldMatrix = model->adjustWorldmatrix(worldMatrix);
 		result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(),m_Direct3DWrapper->GetDevice(), model->GetIndexCount(), sceneInfo, lightInfo, m_RenderTexture->GetShaderRessourceView(), model->GetTexture()->GetResourceView(),model->GetNormalMap()->GetResourceView());

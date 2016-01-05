@@ -30,7 +30,8 @@ bool EngineCore::Init()
 	inputObj = new Input;
 	// Nullcheck
 	if (!inputObj) return false;
-	inputObj->Init();
+	result = inputObj->Init(instance,hwnd,screenWidth,screenHeight);
+	if (!result) return false;
 
 	// Create the graphics object.  This object will handle rendering all the graphics for this application.
 	graphObj = new GraphicsCore;
@@ -134,11 +135,13 @@ void EngineCore::InitWindows(int &screenWidth, int &screenHeight)
 	posX = (GetSystemMetrics(SM_CXSCREEN) - screenWidth) / 2;
 	posY = (GetSystemMetrics(SM_CYSCREEN) - screenHeight) / 2;
 	
+	RECT wr = { 0, 0, screenWidth, screenHeight };    // set the size, but not the position
+	AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE);    // adjust the size
 
 	// Create the window with the screen settings and get the handle to it.
 	hwnd = CreateWindowEx(WS_EX_APPWINDOW, appName, appName,
 		WS_SYSMENU | WS_OVERLAPPED | WS_CAPTION | WS_VISIBLE | WS_MINIMIZEBOX,
-		posX, posY, screenWidth, screenHeight, NULL, NULL, instance, NULL);
+		posX, posY, wr.right - wr.left, wr.bottom - wr.top, NULL, NULL, instance, NULL);
 
 	// Bring the window up on the screen and set it as main focus.
 	ShowWindow(hwnd, SW_SHOW);
@@ -174,7 +177,16 @@ LRESULT EngineCore::MsgHandle(HWND hwnd, UINT msg, WPARAM wparam, LPARAM lparam)
 			inputObj->KeyDown((unsigned int)wparam);
 			return 0;
 		}
-
+		case WM_LBUTTONDOWN:
+		{
+			inputObj->LMouseDown();
+			return 0;
+		}
+		case WM_LBUTTONUP:
+		{
+			inputObj->LMouseUp();
+			return 0;
+		}
 		case WM_KEYUP:
 		{
 			// Send key to the input Obj for State proicessing

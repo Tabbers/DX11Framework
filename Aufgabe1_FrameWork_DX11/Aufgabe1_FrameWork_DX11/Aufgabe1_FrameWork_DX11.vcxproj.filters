@@ -57,9 +57,6 @@
     <ClInclude Include="enginecore.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
-    <ClInclude Include="d3dmath.h">
-      <Filter>Header Files\Math</Filter>
-    </ClInclude>
     <ClInclude Include="d3dc.h">
       <Filter>Header Files\D3D</Filter>
     </ClInclude>
@@ -105,17 +102,29 @@
     <ClInclude Include="depthShader.h">
       <Filter>Header Files\D3D\Rendering\Shader</Filter>
     </ClInclude>
-    <ClInclude Include="globaldefinitions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="debugwindow.h">
-      <Filter>Header Files\D3D\Rendering</Filter>
-    </ClInclude>
     <ClInclude Include="DDSTextureLoader.h">
       <Filter>Header Files\Core</Filter>
     </ClInclude>
+    <ClInclude Include="d3dmath.h">
+      <Filter>Header Files\D3D</Filter>
+    </ClInclude>
+    <ClInclude Include="lineShader.h">
+      <Filter>Header Files\D3D\Rendering\Shader</Filter>
+    </ClInclude>
+    <ClInclude Include="collision.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="globaldefinitions.h">
+      <Filter>Header Files\Math</Filter>
+    </ClInclude>
     <ClInclude Include="input.h">
-      <Filter>Header Files\D3D\Model</Filter>
+      <Filter>Header Files\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="line.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="kdTree.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -176,11 +185,20 @@
     <ClCompile Include="depthShader.cpp">
       <Filter>Source Files\D3D\Rendering\Shader</Filter>
     </ClCompile>
-    <ClCompile Include="debugwindow.cpp">
-      <Filter>Source Files\D3D\Rendering</Filter>
-    </ClCompile>
     <ClCompile Include="DDSTextureLoader.cpp">
       <Filter>Source Files\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="lineShader.cpp">
+      <Filter>Source Files\D3D\Rendering\Shader</Filter>
+    </ClCompile>
+    <ClCompile Include="collision.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="line.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="kdTree.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -195,6 +213,12 @@
       <Filter>Source Files\Shaders</Filter>
     </None>
     <None Include="depth.vs">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="line.ps">
+      <Filter>Source Files\Shaders</Filter>
+    </None>
+    <None Include="line.vs">
       <Filter>Source Files\Shaders</Filter>
     </None>
   </ItemGroup>

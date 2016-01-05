@@ -9,10 +9,16 @@
 #include "light.h"
 #include "colorshader.h"
 #include "depthShader.h"
+#include "lineShader.h"
+#include "kdTree.h"
+#include "line.h"
+#include <string>
+#include <windef.h>
 
 GraphicsCore::GraphicsCore() :
 	m_path(nullptr), m_Direct3DWrapper(nullptr), m_Camera(nullptr),
-	m_colShader(nullptr),m_depthShader(nullptr), m_Light(nullptr)
+	m_colShader(nullptr), m_depthShader(nullptr), m_lineShader(nullptr), m_Light(nullptr),
+	m_kdtree(nullptr)
 {
 }
 
@@ -20,15 +26,25 @@ GraphicsCore::~GraphicsCore()
 {
 	delete m_colShader;
 	delete m_depthShader;
+	delete m_lineShader;
 	delete m_path;
 	delete m_Camera;
 	delete m_Light;
 	delete m_Direct3DWrapper;
+	delete m_kdtree;
+	m_collPoints.clear();
 	if (renderable.size() > 0)
 	{
 		for each (D3Dmodel* model in renderable)
 		{
 			delete model;
+		}
+	}
+	if (renderableLines.size() > 0)
+	{
+		for each (Line* line in renderableLines)
+		{
+			delete line;
 		}
 	}
 	return;
@@ -45,6 +61,15 @@ bool GraphicsCore::Init(int screenWidth, int screenHeight, HWND hwnd)
 	D3Dmodel* m_Model2 = nullptr;
 	D3Dmodel* m_Model3 = nullptr;
 	D3Dmodel* m_Model4 = nullptr;
+	D3Dmodel* m_Model5 = nullptr;
+	D3Dmodel* m_Model6 = nullptr;
+	D3Dmodel* m_Model7 = nullptr;
+	D3Dmodel* m_Model8 = nullptr;
+	D3Dmodel* m_Model9 = nullptr;
+	D3Dmodel* m_Model10 = nullptr;
+
+	m_screenWidth = screenWidth;
+	m_screenHeight = screenHeight;
 
 	m_Direct3DWrapper = new D3Dc();
 	if (!m_Direct3DWrapper) return false;
@@ -78,7 +103,7 @@ bool GraphicsCore::Init(int screenWidth, int screenHeight, HWND hwnd)
 	if (!result) return false;
 	renderable.push_back(m_Model2);
 
-	tempPos = XMVectorSet(0.0f, -5.0f, 0.0f, 0.0f);
+	tempPos = XMVectorSet(0.0f,- 5.0f, 0.0f, 0.0f);
 	m_Model3 = new D3Dmodel();
 	if (!m_Model3) return false;
 	result = m_Model3->Init("Data/plane.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
@@ -103,10 +128,44 @@ bool GraphicsCore::Init(int screenWidth, int screenHeight, HWND hwnd)
 	m_Model4->SetRenderOnShadowMap(false);
 	renderable.push_back(m_Model4);
 
+	tempPos = XMVectorSet(10.0f, 10.0f, 10.0f, 0.0f);
+	m_Model5 = new D3Dmodel();
+	if (!m_Model5) return false;
+	result = m_Model5->Init("Data/sphere.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
+	m_Model5->SetScale(3, 3, 3);
+	if (!result) return false;
+	renderable.push_back(m_Model5);
+
+	tempPos = XMVectorSet(10.0f, 30.0f, 10.0f, 0.0f);
+	m_Model6 = new D3Dmodel();
+	if (!m_Model6) return false;
+	result = m_Model6->Init("Data/sphere.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
+	m_Model6->SetScale(3, 3, 3);
+	if (!result) return false;
+	renderable.push_back(m_Model6);
+
+	tempPos = XMVectorSet(10.0f, 30.0f, 10.0f, 0.0f);
+	m_Model7 = new D3Dmodel();
+	if (!m_Model7) return false;
+	result = m_Model7->Init("Data/sphere.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
+	m_Model7->SetScale(8, 8, 8);
+	if (!result) return false;
+	renderable.push_back(m_Model7);
+
+	tempPos = XMVectorSet(70.0f, 30.0f, 55.0f, 0.0f);
+	m_Model9 = new D3Dmodel();
+	if (!m_Model9) return false;
+	result = m_Model9->Init("Data/cube.txt", L"", L"", m_Direct3DWrapper->GetDevice(), m_Direct3DWrapper->GetDeviceContext(), tempPos, tempRot);
+	m_Model9->SetScale(3, 3, 3);
+	if (!result) return false;
+	renderable.push_back(m_Model9);
 	m_RenderTexture = new D3DRenderToTexture();
 	if (!m_RenderTexture) return false;
-	result = m_RenderTexture->Init(m_Direct3DWrapper->GetDevice(),SHADOWMAP_WIDTH,SHADOWMAP_HEIGHT);
+	result = m_RenderTexture->Init(m_Direct3DWrapper->GetDevice(),SHADOWMAP_WIDTH,SHADOWMAP_HEIGHT,
+		m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()], m_Direct3DWrapper->GetMSAASettings().QualityLevel[m_Direct3DWrapper->GetMSAA()], DXGI_FORMAT_R32G32B32A32_FLOAT);
 	if (!result) return false;
+
+	m_kdtree = new KdTree();
 
 	//Shader Initialisation
 	m_depthShader = new DepthShader();
@@ -119,9 +178,31 @@ bool GraphicsCore::Init(int screenWidth, int screenHeight, HWND hwnd)
 	result = m_colShader->Init(m_Direct3DWrapper->GetDevice(), hwnd);
 	if (!result) return false;
 
+	m_lineShader = new LineShader();
+	if (!m_lineShader) return false;
+	result = m_lineShader->Init(m_Direct3DWrapper->GetDevice(), hwnd);
+	if (!result) return false;
+
 	m_path = new Path();
 	if (!m_path) return false;
 
+	m_msaaText = new D3DRenderToTexture();
+	m_msaaText->Init(m_Direct3DWrapper->GetDevice(), screenWidth, screenHeight,
+		m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()], m_Direct3DWrapper->GetMSAASettings().QualityLevel[m_Direct3DWrapper->GetMSAA()], DXGI_FORMAT_R8G8B8A8_UNORM);
+	int i = 0;
+	for each (D3Dmodel* model in renderable)
+	{
+		model->Render(m_Direct3DWrapper->GetDeviceContext());
+		XMMATRIX worldMatrixE;
+		m_Direct3DWrapper->GetWorldMatrix(worldMatrixE);
+		XMMATRIX worldMatrix = model->adjustWorldmatrix(worldMatrixE);
+		if(i!=3) m_kdtree->coll->Triangles(model, worldMatrix); 
+		i++;
+	}
+	m_kdtree->Init(&(m_kdtree->coll->GetTrianglesAsPointers()), m_Direct3DWrapper->GetDevice(), {200,128,0});
+
+	OutputDebugStringA(std::to_string(m_kdtree->coll->GetTriangles().size()).c_str());
+	OutputDebugStringA("\n");
 	return true;
 }
 
@@ -145,52 +226,90 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 
 	XMVECTOR translateL = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR rotateL = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	if (inKey->Keystate('1') && !inKey->KeystateOld('1')) m = CAMERA;
-	if (inKey->Keystate('2') && !inKey->KeystateOld('2')) m = LIGHT;
+	if (inKey->Keystate('1') && !inKey->KeystateOld('1')) m = Modes::CAMERA;
+	if (inKey->Keystate('2') && !inKey->KeystateOld('2')) m = Modes::LIGHT;
 	if (Editmode)
 	{
-		if (m == CAMERA)
+		
+		m_Camera->speedMovement = 10.0f;
+		m_Camera->speedRotation = 1.0f;
+		if (m == Modes::CAMERA)
 		{
-			if (inKey->Keystate('W'))	rotateC = XMVectorSetX(rotateC, m_Camera->speedRotation*delta_time);
-			if (inKey->Keystate('S'))	rotateC = XMVectorSetX(rotateC, -1 * m_Camera->speedRotation*delta_time);
-			if (inKey->Keystate('A'))	rotateC = XMVectorSetY(rotateC, -1 * m_Camera->speedRotation*delta_time);
-			if (inKey->Keystate('D'))	rotateC = XMVectorSetY(rotateC, m_Camera->speedRotation*delta_time);
-			if (inKey->Keystate('Q'))	rotateC = XMVectorSetZ(rotateC, m_Camera->speedRotation*delta_time);
-			if (inKey->Keystate('E'))	rotateC = XMVectorSetZ(rotateC, -1 * m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('W'))	
+				rotateC = XMVectorSetX(rotateC, m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('S'))	
+				rotateC = XMVectorSetX(rotateC, -1 * m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('A'))	
+				rotateC = XMVectorSetY(rotateC, -1 * m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('D'))	
+				rotateC = XMVectorSetY(rotateC, m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('Q'))	
+				rotateC = XMVectorSetZ(rotateC, m_Camera->speedRotation*delta_time);
+			if (inKey->Keystate('E'))	
+				rotateC = XMVectorSetZ(rotateC, -1 * m_Camera->speedRotation*delta_time);
 
 			// Up
-			if (inKey->Keystate(VK_UP))		translateC = XMVectorSetZ(translateC, m_Camera->speedMovement*delta_time);
+			if (inKey->Keystate(VK_UP))		
+				translateC = XMVectorSetZ(translateC, m_Camera->speedMovement*delta_time);
 			// Down
-			if (inKey->Keystate(VK_DOWN))		translateC = XMVectorSetZ(translateC, -1 * m_Camera->speedMovement*delta_time);
+			if (inKey->Keystate(VK_DOWN))		
+				translateC = XMVectorSetZ(translateC, -1 * m_Camera->speedMovement*delta_time);
 			//Left
-			if (inKey->Keystate(VK_LEFT))		translateC = XMVectorSetX(translateC, -1 * m_Camera->speedMovement*delta_time);
+			if (inKey->Keystate(VK_LEFT))		
+				translateC = XMVectorSetX(translateC, -1 * m_Camera->speedMovement*delta_time);
 			//Right
-			if (inKey->Keystate(VK_RIGHT))		translateC = XMVectorSetX(translateC, m_Camera->speedMovement*delta_time);
-
+			if (inKey->Keystate(VK_RIGHT))		
+				translateC = XMVectorSetX(translateC, m_Camera->speedMovement*delta_time);
+			//Up
+			if (inKey->Keystate(VK_SHIFT))
+				translateC = XMVectorSetY(translateC, m_Camera->speedMovement*delta_time);
+			//Down									 
+			if (inKey->Keystate(VK_CONTROL))
+				translateC = XMVectorSetY(translateC, -1 * m_Camera->speedMovement*delta_time);
 			// Set point using camera Rotation and Position;
 			if (inKey->Keystate(VK_SPACE) && !inKey->KeystateOld(VK_SPACE)) m_path->AddPoint(m_Camera->GetPosition(), m_Camera->GetRotation());
 		}
-		if (m == LIGHT)
+		if (m == Modes::LIGHT)
 		{
-			if (inKey->Keystate('W'))	rotateL = XMVectorSetX(rotateL, m_Light->speedRotation*delta_time);
-			if (inKey->Keystate('S'))	rotateL = XMVectorSetX(rotateL, -1 * m_Light->speedRotation*delta_time);
-			if (inKey->Keystate('A'))	rotateL = XMVectorSetY(rotateL, -1 * m_Light->speedRotation*delta_time);
-			if (inKey->Keystate('D'))	rotateL = XMVectorSetY(rotateL, m_Light->speedRotation*delta_time);
-			if (inKey->Keystate('Q'))	rotateL = XMVectorSetZ(rotateL, m_Light->speedRotation*delta_time);
-			if (inKey->Keystate('E'))	rotateL = XMVectorSetZ(rotateL, -1 * m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('W'))	
+				rotateL = XMVectorSetX(rotateL, m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('S'))	
+				rotateL = XMVectorSetX(rotateL, -1 * m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('A'))	
+				rotateL = XMVectorSetY(rotateL, -1 * m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('D'))	
+				rotateL = XMVectorSetY(rotateL, m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('Q'))	
+				rotateL = XMVectorSetZ(rotateL, m_Light->speedRotation*delta_time);
+			if (inKey->Keystate('E'))	
+				rotateL = XMVectorSetZ(rotateL, -1 * m_Light->speedRotation*delta_time);
 
 			// Forwards
-			if (inKey->Keystate(VK_UP))		translateL = XMVectorSetZ(translateL, m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_UP))		
+				translateL = XMVectorSetZ(translateL, m_Light->speedMovement*delta_time);
 			// Backwards									 
-			if (inKey->Keystate(VK_DOWN))	translateL = XMVectorSetZ(translateL, -1 * m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_DOWN))	
+				translateL = XMVectorSetZ(translateL, -1 * m_Light->speedMovement*delta_time);
 			//Left									 
-			if (inKey->Keystate(VK_LEFT))	translateL = XMVectorSetX(translateL, -1 * m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_LEFT))	
+				translateL = XMVectorSetX(translateL, -1 * m_Light->speedMovement*delta_time);
 			//Right									 
-			if (inKey->Keystate(VK_RIGHT))	translateL = XMVectorSetX(translateL, m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_RIGHT))	
+				translateL = XMVectorSetX(translateL, m_Light->speedMovement*delta_time);
 			//Up
-			if (inKey->Keystate(VK_SHIFT))	translateL = XMVectorSetY(translateL,  m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_SHIFT))	
+				translateL = XMVectorSetY(translateL,  m_Light->speedMovement*delta_time);
 			//Down									 
-			if (inKey->Keystate(VK_CONTROL))	translateL = XMVectorSetY(translateL, -1 * m_Light->speedMovement*delta_time);
+			if (inKey->Keystate(VK_CONTROL))	
+				translateL = XMVectorSetY(translateL, -1 * m_Light->speedMovement*delta_time);
+		}
+		if (inKey->lMousestate() && !inKey->lMousestateOld() && m_hwndin == GetActiveWindow())
+		{
+			inKey->mousePressed = true;
+			POINT p;
+			GetCursorPos(&p);
+			ScreenToClient(GetActiveWindow(), &p);
+			inKey->SetMouseCoord(p.x, p.y);
 		}
 		if (inKey->Keystate(VK_PRIOR) && !inKey->KeystateOld(VK_PRIOR))
 		{
@@ -223,6 +342,32 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 			else temp = 9;
 			m_colShader->SetMip(temp);
 
+		}
+		if (inKey->Keystate('K') && !inKey->KeystateOld('K'))
+		{
+			if (m_displayKd) m_displayKd = false;
+			else m_displayKd = true;
+		}
+		if (inKey->Keystate(VK_OEM_COMMA) && !inKey->KeystateOld(VK_OEM_COMMA))
+		{
+			int msaa = m_Direct3DWrapper->GetMSAA();
+			if (msaa < m_Direct3DWrapper->GetMSAASettings().QualityLevel.size()-1)
+				msaa++;
+			else msaa = 0;
+			m_Direct3DWrapper->SetMSAA(msaa);
+			
+			delete(m_RenderTexture);
+			m_RenderTexture = new D3DRenderToTexture();
+			if (!m_RenderTexture) return false;
+			result = m_RenderTexture->Init(m_Direct3DWrapper->GetDevice(), SHADOWMAP_WIDTH, SHADOWMAP_HEIGHT,
+				m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()], m_Direct3DWrapper->GetMSAASettings().QualityLevel[m_Direct3DWrapper->GetMSAA()], DXGI_FORMAT_R32G32B32A32_FLOAT);
+			if (!result) return false;
+
+			delete(m_msaaText);
+			m_msaaText = new D3DRenderToTexture();
+			m_msaaText->Init(m_Direct3DWrapper->GetDevice(),m_screenWidth,m_screenHeight,
+				m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()], m_Direct3DWrapper->GetMSAASettings().QualityLevel[m_Direct3DWrapper->GetMSAA()], DXGI_FORMAT_R8G8B8A8_UNORM);
+			SetWindowNameOnFilterChange();
 		}
 		if (inKey->Keystate('N') && !inKey->KeystateOld('N'))
 		{
@@ -304,18 +449,24 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 	}
 
 	result = RenderTexture(Editmode, translateL, rotateL);
+	
+	if (m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()] > 1)
+	{
+		m_msaaText->ClearRenderTarget(m_Direct3DWrapper->GetDeviceContext(),BACKGROUNDCOLOR);
+		m_msaaText->SetRenderTarget(m_Direct3DWrapper->GetDeviceContext());
+		
+	}
 	if (!result) return false;
-
 	m_Camera->ResetViewport(m_Direct3DWrapper->GetDeviceContext());
+	m_Direct3DWrapper->BeginScene(BACKGROUNDCOLOR);
 
-	m_Direct3DWrapper->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
-
-	m_Camera->Render(translateC, rotateC, Editmode);
+	m_Camera->Render(translateC, rotateC, Editmode, m_playback);
 	m_Light->Render(translateL, rotateL, Editmode);
 
 	m_Direct3DWrapper->GetWorldMatrix(worldMatrix);
 	m_Camera->GetViewMatrix(viewMatrix);
 	m_Camera->GetProjectionMatrix(projectionMatrix);
+
 
 	Matrices sceneInfo(worldMatrix, viewMatrix, projectionMatrix);
 	LightData lightInfo(m_Light->GetViewMatrix(), m_Light->GetProjectionMatrix(), m_Light->GetAmbientColor(), m_Light->GetDiffuseColor(), m_Light->GetXMFLOAT3Position());
@@ -323,6 +474,22 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 	renderable[4]->SetPosition(m_Light->GetPosition());
 	renderable[4]->SetRotation(m_Light->GetRotation());
 
+	for each(Line* line in 	conLines)
+	{
+		line->Render(m_Direct3DWrapper->GetDeviceContext());
+		result = m_lineShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Direct3DWrapper->GetDevice(), line->GetIndexCount(), sceneInfo);
+	}
+
+	for each(Line* line in renderableLines)
+	{
+		line->Render(m_Direct3DWrapper->GetDeviceContext());
+		result = m_lineShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Direct3DWrapper->GetDevice(), line->GetIndexCount(), sceneInfo);
+	}
+	if (m_displayKd)
+	{
+		m_kdtree->Render(m_Direct3DWrapper->GetDeviceContext());
+		result = m_lineShader->Render(m_Direct3DWrapper->GetDeviceContext(), m_Direct3DWrapper->GetDevice(), m_kdtree->GetIndexCount(), sceneInfo);
+	}
 	for each (D3Dmodel* model in renderable)
 	{
 		sceneInfo.DrawNormal = model->GetDrawNormalMap();
@@ -331,8 +498,94 @@ bool GraphicsCore::Render(float delta_time, Input* inKey, bool Editmode)
 		result = m_colShader->Render(m_Direct3DWrapper->GetDeviceContext(),m_Direct3DWrapper->GetDevice(), model->GetIndexCount(), sceneInfo, lightInfo, m_RenderTexture->GetShaderRessourceView(), model->GetTexture()->GetResourceView(),model->GetNormalMap()->GetResourceView());
 		if (!result) return false;	
 	}
+	if (inKey->mousePressed)
+	{
+		float length = 0;
+		int mouseX, mouseY = 0;
+		inKey->GetMouseCoord(mouseX, mouseY);
+		Ray ray = m_kdtree->coll->MouseToWWorld(mouseX, mouseY, m_screenWidth, m_screenHeight, sceneInfo, m_Camera->GetPosition());
+		//Collision detection
+		m_kdtree->rayCast(m_kdtree->getRoot(),ray,length,RAYCASTDISTANCE,0);
 
+		for (int i = 0; i<renderableLines.size(); ++i)
+		{
+			renderableLines.pop_back();
+		}
+		if (length > 0 && length < std::numeric_limits<float>::infinity())
+		{
+			OutputDebugStringA("Yes");
+			int i = 0;
+			int index = std::numeric_limits<float>::infinity();
+			length = std::numeric_limits<float>::infinity();
+			for each (Triangle tri in  m_kdtree->coll->GetTriangles())
+			{
+				if (tri.intersection)
+				{
+					if (tri.distance < length)
+					{
+						OutputDebugStringA(std::to_string(i).c_str());
+						OutputDebugStringA("\n");
+						length = tri.distance;
+						index = i;
+					}
+					m_kdtree->coll->ResetTriangle(i);
+				}
+				i++;
+			}
+			if (index != std::numeric_limits<float>::infinity())
+			{
+				Triangle tri = m_kdtree->coll->GetTriangle(index);
+				//Hit Trinagle Render
+				Line* lineV1 = new Line();
+				Line* lineV2 = new Line();
+				Line* lineV3 = new Line();
+				lineV1->Init(m_Direct3DWrapper->GetDevice(), tri.v1, tri.v2, { 0,255,0 });
+				lineV2->Init(m_Direct3DWrapper->GetDevice(), tri.v2, tri.v3, { 0,255,0 });
+				lineV3->Init(m_Direct3DWrapper->GetDevice(), tri.v3, tri.v1, { 0,255,0 });
+				renderableLines.push_back(lineV1);
+				renderableLines.push_back(lineV2);
+				renderableLines.push_back(lineV3);
+
+				if (m_collPoints.size() < 2)
+				{
+					m_collPoints.push_back(tri.PointIntersect);
+					if (m_collPoints.size() == 2)
+					{
+						Line* lineColl = new Line();
+						lineColl->Init(m_Direct3DWrapper->GetDevice(), m_collPoints[0], m_collPoints[1], { 0,0,255 });
+						conLines.push_back(lineColl);
+						for (int i = 0; m_collPoints.size(); ++i)
+						{
+							m_collPoints.pop_back();
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			OutputDebugStringA("No");
+		}
+		// Ray Render
+		if (length == 0) length = RAYCASTDISTANCE;
+		XMVECTOR end = ray.m_Origin + ray.m_Direction * length;
+		Line* line = new Line();
+		line->Init(m_Direct3DWrapper->GetDevice(), ray.m_Origin, end, { 255,0,0 });
+		renderableLines.push_back(line);
+	}
+	
+	if (m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()] > 1)
+	{
+		m_Direct3DWrapper->GetDeviceContext()->ResolveSubresource(
+			m_Direct3DWrapper->GetBackBuffer(),
+			0,
+			m_msaaText->GetTexture(),
+			0,
+			DXGI_FORMAT_R8G8B8A8_UNORM
+		);
+	}
 	m_Direct3DWrapper->EndScene();
+	inKey->mousePressed = false;
 	return true;
 }
 
@@ -349,7 +602,7 @@ bool GraphicsCore::RenderTexture(bool Editmode, XMVECTOR translateL, XMVECTOR ro
 
 	// Clear the render to texture.
 	m_RenderTexture->ClearRenderTarget(m_Direct3DWrapper->GetDeviceContext(), {0,0.5f,0,1});
-
+	
 	m_Light->Render(translateL, rotateL, Editmode);
 
 	m_Direct3DWrapper->GetWorldMatrix(worldMatrix);
@@ -373,34 +626,38 @@ bool GraphicsCore::RenderTexture(bool Editmode, XMVECTOR translateL, XMVECTOR ro
 
 void GraphicsCore::SetWindowNameOnFilterChange()
 {
+	std::wstring composite = L"";
+	composite += std::to_wstring(m_Direct3DWrapper->GetMSAASettings().QualityLevel[m_Direct3DWrapper->GetMSAA()]) + L" :QualityLevel ";
+	composite += std::to_wstring(m_Direct3DWrapper->GetMSAASettings().SampleCounts[m_Direct3DWrapper->GetMSAA()]) + L" :SampleCount -";
 	switch (m_colShader->GetFilter())
 	{
 	case 0:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_MIP_POINT");
+		composite += L"D3D11_FILTER_MIN_MAG_MIP_POINT";
 		break;
 	case 1:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR");
+		composite += L"D3D11_FILTER_MIN_MAG_POINT_MIP_LINEAR";
 		break;
 	case 2:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT");
+		composite += L"D3D11_FILTER_MIN_POINT_MAG_LINEAR_MIP_POINT";
 		break;
 	case 3:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR");
+		composite += L"D3D11_FILTER_MIN_POINT_MAG_MIP_LINEAR";
 		break;
 	case 4:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT");
+		composite += L"D3D11_FILTER_MIN_LINEAR_MAG_MIP_POINT";
 		break;
 	case 5:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR");
+		composite += L"D3D11_FILTER_MIN_LINEAR_MAG_POINT_MIP_LINEAR";
 		break;
 	case 6:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT");
+		composite += L"D3D11_FILTER_MIN_MAG_LINEAR_MIP_POINT";
 		break;
 	case 7:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_MIN_MAG_MIP_LINEAR");
+		composite += L"D3D11_FILTER_MIN_MAG_MIP_LINEAR";
 		break;
 	case 8:
-		SetWindowText(GetActiveWindow(), L"D3D11_FILTER_ANISOTROPIC");
+		composite += L"D3D11_FILTER_ANISOTROPIC";
 		break;
 	}
+	SetWindowText(GetActiveWindow(), composite.c_str());
 }

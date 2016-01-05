@@ -51,6 +51,32 @@ void D3Dmodel::Render(ID3D11DeviceContext * devCon)
 	return;
 }
 
+std::vector<Triangle> D3Dmodel::ModelAsTriangles( XMMATRIX world)
+{
+	std::vector<Triangle> triangles;
+
+	for (int i = 0; i < m_vertexCount; i+=3)
+	{
+		XMVECTOR Trianglevertex1;
+		XMVECTOR Trianglevertex2;
+		XMVECTOR Trianglevertex3;
+		
+		Trianglevertex1 = XMVectorSet((*m_model).vertices[i].m_position.x, (*m_model).vertices[i].m_position.y, (*m_model).vertices[i].m_position.z, 0);
+		Trianglevertex2 = XMVectorSet((*m_model).vertices[i+1].m_position.x, (*m_model).vertices[i+1].m_position.y, (*m_model).vertices[i+1].m_position.z, 0);
+		Trianglevertex3 = XMVectorSet((*m_model).vertices[i+2].m_position.x, (*m_model).vertices[i+2].m_position.y, (*m_model).vertices[i+2].m_position.z, 0);
+
+		Trianglevertex1 = XMVector3Transform(Trianglevertex1, world);
+		Trianglevertex2 = XMVector3Transform(Trianglevertex2, world);
+		Trianglevertex3 = XMVector3Transform(Trianglevertex3, world);
+
+		Triangle tri(Trianglevertex1,Trianglevertex2,Trianglevertex3);
+		tri.CalculateCenter();
+		triangles.push_back(tri);
+	}
+
+	return triangles;
+}
+
 int D3Dmodel::GetIndexCount()
 {
 	return m_indexCount;

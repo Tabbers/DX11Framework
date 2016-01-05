@@ -3,6 +3,8 @@
 
 #include "gameobject.h"
 #include "texture.h"
+#include "globaldefinitions.h"
+#include <vector>
 class Model;
 using namespace DirectX;
 
@@ -40,12 +42,13 @@ public:
 
 	bool Init(char*,wchar_t*,wchar_t*,ID3D11Device*,ID3D11DeviceContext*,XMVECTOR,XMVECTOR);
 	void Render(ID3D11DeviceContext*);
+	std::vector<Triangle> ModelAsTriangles(XMMATRIX world);
 
 	int GetIndexCount();
 	inline Texture* GetTexture() { return m_Text; };
 	inline Texture* GetNormalMap() { return m_NormalMap; };
 	XMMATRIX adjustWorldmatrix(XMMATRIX);
-
+	bool collision = true;
 private:
 	bool InitBuffers(ID3D11Device*,XMVECTOR,XMVECTOR);
 	void ShutdownBuffers();

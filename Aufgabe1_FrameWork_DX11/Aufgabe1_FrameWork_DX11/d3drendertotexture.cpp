@@ -18,7 +18,7 @@ D3DRenderToTexture::~D3DRenderToTexture()
 	m_renderTargetTexture->Release();
 }
 
-bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHeight)
+bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHeight,int sampleCount,int QualityLevel,DXGI_FORMAT format)
 {
 	D3D11_TEXTURE2D_DESC textureDesc;
 	HRESULT result;
@@ -36,8 +36,9 @@ bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHe
 	textureDesc.Height = textureHeight;
 	textureDesc.MipLevels = 1;
 	textureDesc.ArraySize = 1;
-	textureDesc.Format = DXGI_FORMAT_R32G32B32A32_FLOAT;
-	textureDesc.SampleDesc.Count = 1;
+	textureDesc.Format = format;
+	textureDesc.SampleDesc.Count = sampleCount;
+	textureDesc.SampleDesc.Quality = QualityLevel;
 	textureDesc.Usage = D3D11_USAGE_DEFAULT;
 	textureDesc.BindFlags = D3D11_BIND_RENDER_TARGET | D3D11_BIND_SHADER_RESOURCE;
 	textureDesc.CPUAccessFlags = 0;
@@ -52,7 +53,7 @@ bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHe
 
 	// Setup the description of the render target view.
 	renderTargetViewDesc.Format = textureDesc.Format;
-	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2D;
+	renderTargetViewDesc.ViewDimension = D3D11_RTV_DIMENSION_TEXTURE2DMS;
 	renderTargetViewDesc.Texture2D.MipSlice = 0;
 
 	// Create the render target view.
@@ -64,7 +65,7 @@ bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHe
 
 	// Setup the description of the shader resource view.
 	shaderResourceViewDesc.Format = textureDesc.Format;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2DMS;
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1;
 
@@ -84,8 +85,8 @@ bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHe
 	depthBufferDesc.MipLevels = 1;
 	depthBufferDesc.ArraySize = 1;
 	depthBufferDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthBufferDesc.SampleDesc.Count = 1;
-	depthBufferDesc.SampleDesc.Quality = 0;
+	depthBufferDesc.SampleDesc.Count = sampleCount;
+	depthBufferDesc.SampleDesc.Quality = QualityLevel;
 	depthBufferDesc.Usage = D3D11_USAGE_DEFAULT;
 	depthBufferDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
 	depthBufferDesc.CPUAccessFlags = 0;
@@ -103,7 +104,7 @@ bool D3DRenderToTexture::Init(ID3D11Device *dev, int textureWidth, int textureHe
 
 	// Set up the depth stencil view description.
 	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DMS;
 	depthStencilViewDesc.Texture2D.MipSlice = 0;
 
 	// Create the depth stencil view.

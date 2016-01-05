@@ -5,7 +5,6 @@
 #include "globaldefinitions.h"
 #include <chrono>
 #include <string>
-#include <vector>
 
 class D3Dmodel;
 class D3DCamera;
@@ -16,7 +15,11 @@ class Path;
 class Light;
 class ColorShader;
 class DepthShader;
+class LineShader;
 class DebugWindow;
+class Collision;
+class Line;
+class KdTree;
 
 class GraphicsCore
 {
@@ -34,14 +37,18 @@ private:
 	D3Dc* m_Direct3DWrapper;
 	D3DCamera* m_Camera;
 	D3DRenderToTexture* m_RenderTexture;
-
+	D3DRenderToTexture* m_msaaText;
 	std::vector<D3Dmodel*> renderable;
-
+	std::vector<Line*> renderableLines;
+	std::vector<XMVECTOR> m_collPoints;
+	std::vector<Line*> conLines;
 	Light*	m_Light;
 		
 	ColorShader* m_colShader;
 	DepthShader* m_depthShader;
+	LineShader* m_lineShader;
 	Path* m_path;
+	KdTree* m_kdtree;
 	DebugWindow* m_dwind;
 
 	// reference to parent window
@@ -52,8 +59,10 @@ private:
 	float m_sublength = 0;
 	float m_elapsedTime = 0;
 	bool  m_playback = false;
+	bool  m_displayKd = false;
 
-	Modes m = CAMERA;
+	int m_screenWidth, m_screenHeight;
+	Modes m = Modes::CAMERA;
 };
 
 #endif // !_GRAPHICSCORE_H_

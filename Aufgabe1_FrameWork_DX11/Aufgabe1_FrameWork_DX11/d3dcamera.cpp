@@ -27,7 +27,7 @@ void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* dev
 	devCon->RSSetViewports(1, &m_viewport);
 
 	// Set up fov to 90°
-	m_fieldOfView = 3.141592654f/4.0f;
+	m_fieldOfView = PI/4.0f;
 	//get Apsect ratio
 	m_screenAspect = (float)screenWidth / (float)screenHeight;
 
@@ -39,7 +39,7 @@ void D3DCamera::Init(int screenWidth, int screenHeight, ID3D11DeviceContext* dev
 
 }
 
-void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
+void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move, bool playback)
 {
 	XMVECTOR upVector, lookAtVector, rightVector;
 	XMMATRIX rotationMatrix;
@@ -54,8 +54,7 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 		quaternion = XMQuaternionNormalize(quaternion);
 		m_rotation = XMQuaternionMultiply(quaternion, m_rotation);
 	}
-	else m_rotation = rotate;
-
+	if (playback) m_rotation = rotate;
 	rotationMatrix = XMMatrixRotationQuaternion(m_rotation);
 
 	// Transform the lookAt and up vector by the rotation matrix so the view is correctly rotated at the origin.
@@ -68,7 +67,7 @@ void D3DCamera::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 		translate = XMVectorSetW(translate, 0);
 		m_position += translate;
 	}
-	else m_position = translate;
+	if (playback) m_position = translate;
 
 	// Translate the rotated camera position to the location of the viewer.
 	lookAtVector = XMVectorAdd(m_position, lookAtVector);

@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="collision.h" />
     <ClInclude Include="colorshader.h" />
     <ClInclude Include="d3dc.h" />
     <ClInclude Include="d3dcamera.h" />
@@ -26,14 +27,16 @@
     <ClInclude Include="d3dmodel.h" />
     <ClInclude Include="d3drendertotexture.h" />
     <ClInclude Include="DDSTextureLoader.h" />
-    <ClInclude Include="debugwindow.h" />
     <ClInclude Include="depthShader.h" />
     <ClInclude Include="enginecore.h" />
     <ClInclude Include="gameobject.h" />
     <ClInclude Include="globaldefinitions.h" />
     <ClInclude Include="graphicscore.h" />
     <ClInclude Include="input.h" />
+    <ClInclude Include="kdTree.h" />
     <ClInclude Include="light.h" />
+    <ClInclude Include="line.h" />
+    <ClInclude Include="lineShader.h" />
     <ClInclude Include="model.h" />
     <ClInclude Include="path.h" />
     <ClInclude Include="pathpoint.h" />
@@ -42,6 +45,7 @@
     <ClInclude Include="vertice.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="collision.cpp" />
     <ClCompile Include="colorshaderclass.cpp" />
     <ClCompile Include="d3dc.cpp" />
     <ClCompile Include="d3dcamera.cpp" />
@@ -49,13 +53,15 @@
     <ClCompile Include="d3dmodel.cpp" />
     <ClCompile Include="d3drendertotexture.cpp" />
     <ClCompile Include="DDSTextureLoader.cpp" />
-    <ClCompile Include="debugwindow.cpp" />
     <ClCompile Include="depthShader.cpp" />
     <ClCompile Include="enginecore.cpp" />
     <ClCompile Include="gameobject.cpp" />
     <ClCompile Include="graphicscore.cpp" />
     <ClCompile Include="input.cpp" />
+    <ClCompile Include="kdTree.cpp" />
     <ClCompile Include="light.cpp" />
+    <ClCompile Include="line.cpp" />
+    <ClCompile Include="lineShader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="model.cpp" />
     <ClCompile Include="path.cpp" />
@@ -70,6 +76,8 @@
     <None Include="color.vs" />
     <None Include="depth.ps" />
     <None Include="depth.vs" />
+    <None Include="line.ps" />
+    <None Include="line.vs" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FBA20AD1-C316-45CC-8E34-E5A22028AC0C}</ProjectGuid>
@@ -145,6 +153,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dinput8.lib;d3dcompiler.lib;d3d11.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -158,6 +167,7 @@
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>dinput8.lib;d3dcompiler.lib;d3d11.lib;dxgi.lib;kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

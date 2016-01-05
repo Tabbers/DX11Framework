@@ -12,7 +12,7 @@ public:
 	~D3DCamera();
 
 	void Init(int, int, ID3D11DeviceContext*, XMVECTOR, XMVECTOR);
-	void Render(XMVECTOR, XMVECTOR,bool);
+	void Render(XMVECTOR, XMVECTOR,bool,bool);
 	void ResetViewport(ID3D11DeviceContext * devCon);
 	//getter
 	inline void GetViewMatrix(XMMATRIX& viewMatrix) { viewMatrix = this->m_viewMatrix; };

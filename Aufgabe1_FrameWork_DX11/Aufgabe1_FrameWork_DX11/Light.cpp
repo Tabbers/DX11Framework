@@ -59,7 +59,6 @@ void Light::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 		quaternion = XMQuaternionNormalize(quaternion);
 		m_rotation = XMQuaternionMultiply(quaternion, m_rotation);
 	}
-	else m_rotation = rotate;
 
 	rotationMatrix = XMMatrixRotationQuaternion(m_rotation);
 
@@ -76,7 +75,6 @@ void Light::Render(XMVECTOR translate, XMVECTOR rotate, bool move)
 		translate = XMVectorSetW(translate, 0);
 		m_position += translate;
 	}
-	else m_position = translate;
 
 	// Translate the rotated camera position to the location of the viewer.
 	lookAtVector = XMVectorAdd(m_position, lookAtVector);
